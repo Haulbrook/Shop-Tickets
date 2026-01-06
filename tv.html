@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Repair Tickets - TV Display</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #22c55e;
+            --primary-dark: #166534;
+            --primary-glow: rgba(34, 197, 94, 0.4);
+            --danger: #ef4444;
+            --warning: #fbbf24;
+            --warning-dark: #92400e;
+            --bg: #0d1117;
+            --bg-card: #161b22;
+            --bg-elevated: #1c2128;
+            --text: #f0f6fc;
+            --text-muted: #8b949e;
+            --border: #30363d;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+            font-weight: 500;
+        }
+
+        /* ============================================ LAYOUT ============================================ */
+        .dashboard {
+            display: grid;
+            grid-template-rows: 12vh 1fr;
+            height: 100vh;
+            padding: 1vh 1vw;
+            gap: 1vh;
+        }
+
+        /* ============================================ HEADER ============================================ */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, #0f4c2a 100%);
+            padding: 1vh 2vw;
+            border-radius: clamp(8px, 1vw, 16px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 20px var(--primary-glow);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: clamp(12px, 1.5vw, 24px);
+        }
+
+        .logo {
+            font-size: clamp(2rem, 5vh, 4rem);
+            filter: drop-shadow(0 0 10px rgba(34, 197, 94, 0.5));
+        }
+
+        .header-title h1 {
+            font-size: clamp(1.2rem, 2.5vw, 2.5rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .header-title p {
+            font-size: clamp(0.7rem, 1.2vw, 1.2rem);
+            opacity: 0.85;
+        }
+
+        .header-center {
+            text-align: center;
+        }
+
+        .time {
+            font-size: clamp(2rem, 6vh, 5rem);
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            line-height: 1;
+        }
+
+        .date {
+            font-size: clamp(0.7rem, 1.3vw, 1.3rem);
+            opacity: 0.9;
+            margin-top: 0.5vh;
+        }
+
+        .header-right {
+            text-align: right;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: clamp(0.7rem, 1.1vw, 1.1rem);
+        }
+
+        .status-dot {
+            width: clamp(8px, 1.2vh, 14px);
+            height: clamp(8px, 1.2vh, 14px);
+            border-radius: 50%;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.2); }
+        }
+
+        .last-updated {
+            font-size: clamp(0.6rem, 1vw, 1rem);
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ============================================ MAIN CONTENT ============================================ */
+        .main {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1vw;
+            overflow: hidden;
+        }
+
+        .column {
+            background: var(--bg-card);
+            border-radius: clamp(8px, 1vw, 16px);
+            padding: clamp(12px, 1.5vh, 24px);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: clamp(12px, 1.5vh, 20px);
+            padding-bottom: clamp(8px, 1vh, 16px);
+            border-bottom: 2px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .column-title {
+            font-size: clamp(1rem, 1.8vw, 1.8rem);
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: clamp(8px, 1vw, 16px);
+        }
+
+        .column-title-icon {
+            font-size: clamp(1.2rem, 2vw, 2rem);
+        }
+
+        .column-badge {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            padding: clamp(4px, 0.6vh, 8px) clamp(12px, 1.2vw, 20px);
+            border-radius: 20px;
+            font-size: clamp(0.8rem, 1.2vw, 1.2rem);
+            font-weight: 700;
+        }
+
+        .column.completed .column-badge {
+            background: linear-gradient(135deg, var(--text-muted), #4b5563);
+        }
+
+        .tickets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(clamp(200px, 18vw, 350px), 1fr));
+            gap: clamp(10px, 1vh, 16px);
+            overflow: hidden;
+            flex: 1;
+            align-content: start;
+        }
+
+        /* ============================================ TICKET CARDS ============================================ */
+        .ticket {
+            background: var(--bg-elevated);
+            border-radius: clamp(8px, 1vw, 12px);
+            padding: clamp(12px, 1.5vh, 20px);
+            border: 1px solid var(--border);
+            border-left: 5px solid var(--warning);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(6px, 0.8vh, 12px);
+        }
+
+        .ticket:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            border-left-color: var(--primary);
+        }
+
+        .ticket:active {
+            transform: scale(0.98);
+        }
+
+        .ticket.completing {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .ticket.completed-card {
+            border-left-color: var(--primary);
+            opacity: 0.8;
+            cursor: default;
+        }
+
+        .ticket.completed-card:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .ticket-item {
+            font-size: clamp(1.2rem, 2vw, 2rem);
+            font-weight: 900;
+            color: var(--text);
+        }
+
+        .ticket-assigned {
+            font-size: clamp(0.9rem, 1.4vw, 1.4rem);
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .ticket-notes {
+            font-size: clamp(0.75rem, 1.1vw, 1.1rem);
+            color: var(--text-muted);
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .ticket-time {
+            font-size: clamp(0.65rem, 0.9vw, 0.9rem);
+            color: var(--text-muted);
+            margin-top: auto;
+            padding-top: clamp(6px, 0.8vh, 10px);
+            border-top: 1px solid var(--border);
+        }
+
+        .tap-hint {
+            font-size: clamp(0.6rem, 0.85vw, 0.85rem);
+            color: var(--primary);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .ticket:hover .tap-hint {
+            opacity: 1;
+        }
+
+        /* ============================================ EMPTY STATE ============================================ */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .empty-icon {
+            font-size: clamp(3rem, 8vh, 6rem);
+            margin-bottom: clamp(12px, 2vh, 24px);
+            opacity: 0.5;
+        }
+
+        .empty-text {
+            font-size: clamp(1rem, 1.5vw, 1.5rem);
+        }
+
+        /* ============================================ SETTINGS OVERLAY ============================================ */
+        .settings-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0.3;
+            transition: opacity 0.3s;
+        }
+
+        .settings-btn:hover {
+            opacity: 1;
+        }
+
+        .settings-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .settings-overlay.show {
+            display: flex;
+        }
+
+        .settings-panel {
+            background: var(--bg-card);
+            padding: 32px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid var(--border);
+        }
+
+        .settings-panel h2 {
+            margin-bottom: 20px;
+        }
+
+        .settings-panel input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 1rem;
+            margin-bottom: 16px;
+        }
+
+        .settings-panel button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+
+        .settings-panel .btn-save {
+            background: var(--primary);
+            color: white;
+        }
+
+        .settings-panel .btn-cancel {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        /* ============================================ HIDE SCROLLBARS ============================================ */
+        * {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        *::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <div class="logo">🔧</div>
+                <div class="header-title">
+                    <h1>Shop Repair Tickets</h1>
+                    <p>Tap ticket to mark complete</p>
+                </div>
+            </div>
+            <div class="header-center">
+                <div class="time" id="time">--:--</div>
+                <div class="date" id="date">Loading...</div>
+            </div>
+            <div class="header-right">
+                <div class="status">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span id="statusText">Connected</span>
+                </div>
+                <div class="last-updated" id="lastUpdated">Last updated: --</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main">
+            <!-- Open Tickets -->
+            <div class="column">
+                <div class="column-header">
+                    <div class="column-title">
+                        <span class="column-title-icon">🎫</span>
+                        <span>Open Tickets</span>
+                    </div>
+                    <div class="column-badge" id="openBadge">0</div>
+                </div>
+                <div class="tickets-grid" id="openTickets">
+                    <div class="empty-state">
+                        <div class="empty-icon">🎫</div>
+                        <div class="empty-text">Loading...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Completed Today -->
+            <div class="column completed">
+                <div class="column-header">
+                    <div class="column-title">
+                        <span class="column-title-icon">✅</span>
+                        <span>Completed Today</span>
+                    </div>
+                    <div class="column-badge" id="completedBadge">0</div>
+                </div>
+                <div class="tickets-grid" id="completedTickets">
+                    <div class="empty-state">
+                        <div class="empty-icon">✅</div>
+                        <div class="empty-text">No completed tickets</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Button -->
+    <button class="settings-btn" onclick="showSettings()">⚙️</button>
+
+    <!-- Settings Overlay -->
+    <div class="settings-overlay" id="settingsOverlay">
+        <div class="settings-panel">
+            <h2>Settings</h2>
+            <label>API URL (Google Apps Script)</label>
+            <input type="text" id="apiUrlInput" placeholder="https://script.google.com/macros/s/...">
+            <div>
+                <button class="btn-save" onclick="saveSettings()">Save</button>
+                <button class="btn-cancel" onclick="hideSettings()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURATION
+        // ============================================
+        let API_URL = localStorage.getItem('shopTicketsApiUrl') || '';
+        const REFRESH_INTERVAL = 30000; // 30 seconds
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            updateClock();
+            setInterval(updateClock, 1000);
+
+            if (API_URL) {
+                loadTickets();
+                setInterval(loadTickets, REFRESH_INTERVAL);
+            } else {
+                showSettings();
+            }
+        });
+
+        // ============================================
+        // CLOCK
+        // ============================================
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('time').textContent = now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('date').textContent = now.toLocaleDateString('en-US', {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        // ============================================
+        // API
+        // ============================================
+        async function apiCall(action, data = {}) {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({ action, ...data })
+            });
+            return response.json();
+        }
+
+        // ============================================
+        // LOAD TICKETS
+        // ============================================
+        async function loadTickets() {
+            try {
+                const result = await apiCall('getTickets');
+
+                if (result.success) {
+                    renderOpenTickets(result.data.open);
+                    renderCompletedTickets(result.data.completed);
+                    setStatus(true);
+                    updateLastUpdated();
+                } else {
+                    setStatus(false);
+                }
+            } catch (error) {
+                console.error('Error loading tickets:', error);
+                setStatus(false);
+            }
+        }
+
+        // ============================================
+        // RENDER TICKETS
+        // ============================================
+        function renderOpenTickets(tickets) {
+            const container = document.getElementById('openTickets');
+            document.getElementById('openBadge').textContent = tickets.length;
+
+            if (tickets.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🎫</div>
+                        <div class="empty-text">No open tickets</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = tickets.map(ticket => `
+                <div class="ticket" onclick="completeTicket('${ticket.ticketId}', this)">
+                    <div class="ticket-item">${escapeHtml(ticket.item)}</div>
+                    ${ticket.assignedTo ? `<div class="ticket-assigned">${escapeHtml(ticket.assignedTo)}</div>` : ''}
+                    ${ticket.notes ? `<div class="ticket-notes">${escapeHtml(ticket.notes)}</div>` : ''}
+                    <div class="ticket-time">
+                        Created: ${formatTime(ticket.created)}
+                        <span class="tap-hint"> • Tap to complete</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderCompletedTickets(tickets) {
+            const container = document.getElementById('completedTickets');
+            document.getElementById('completedBadge').textContent = tickets.length;
+
+            if (tickets.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">✅</div>
+                        <div class="empty-text">No completed tickets today</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = tickets.map(ticket => `
+                <div class="ticket completed-card">
+                    <div class="ticket-item">${escapeHtml(ticket.item)}</div>
+                    ${ticket.assignedTo ? `<div class="ticket-assigned">${escapeHtml(ticket.assignedTo)}</div>` : ''}
+                    <div class="ticket-time">Completed: ${formatTime(ticket.completed)}</div>
+                </div>
+            `).join('');
+        }
+
+        // ============================================
+        // COMPLETE TICKET
+        // ============================================
+        async function completeTicket(ticketId, element) {
+            element.classList.add('completing');
+
+            try {
+                const result = await apiCall('completeTicket', { ticketId });
+
+                if (result.success) {
+                    await loadTickets();
+                } else {
+                    element.classList.remove('completing');
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                element.classList.remove('completing');
+                alert('Error completing ticket');
+            }
+        }
+
+        // ============================================
+        // STATUS
+        // ============================================
+        function setStatus(online) {
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+
+            if (online) {
+                dot.style.background = 'var(--primary)';
+                dot.style.boxShadow = '0 0 10px var(--primary)';
+                text.textContent = 'Connected';
+            } else {
+                dot.style.background = 'var(--danger)';
+                dot.style.boxShadow = '0 0 10px var(--danger)';
+                text.textContent = 'Offline';
+            }
+        }
+
+        function updateLastUpdated() {
+            const now = new Date();
+            document.getElementById('lastUpdated').textContent = 'Last updated: ' +
+                now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // ============================================
+        // SETTINGS
+        // ============================================
+        function showSettings() {
+            document.getElementById('apiUrlInput').value = API_URL;
+            document.getElementById('settingsOverlay').classList.add('show');
+        }
+
+        function hideSettings() {
+            document.getElementById('settingsOverlay').classList.remove('show');
+        }
+
+        function saveSettings() {
+            API_URL = document.getElementById('apiUrlInput').value.trim();
+            localStorage.setItem('shopTicketsApiUrl', API_URL);
+            hideSettings();
+            if (API_URL) loadTickets();
+        }
+
+        // ============================================
+        // UTILITIES
+        // ============================================
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatTime(isoString) {
+            if (!isoString) return '';
+            const date = new Date(isoString);
+            return date.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+        }
+    </script>
+</body>
+</html>
