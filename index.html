@@ -16,6 +16,7 @@
             --primary-dark: #166534;
             --danger: #ef4444;
             --warning: #fbbf24;
+            --repair: #f97316;
             --bg: #0d1117;
             --bg-card: #161b22;
             --bg-input: #21262d;
@@ -85,7 +86,8 @@
         }
 
         .form-group input,
-        .form-group textarea {
+        .form-group textarea,
+        .form-group select {
             width: 100%;
             padding: 12px;
             border: 1px solid var(--border);
@@ -96,7 +98,8 @@
         }
 
         .form-group input:focus,
-        .form-group textarea:focus {
+        .form-group textarea:focus,
+        .form-group select:focus {
             outline: none;
             border-color: var(--primary);
         }
@@ -104,6 +107,35 @@
         .form-group textarea {
             resize: vertical;
             min-height: 80px;
+        }
+
+        .form-group select {
+            cursor: pointer;
+        }
+
+        .form-group select option {
+            background: var(--bg-card);
+            color: var(--text);
+            padding: 8px;
+        }
+
+        /* Search input for filtering */
+        .search-wrapper {
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .search-wrapper input {
+            padding-left: 36px;
+        }
+
+        .search-wrapper::before {
+            content: '🔍';
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.875rem;
         }
 
         .btn {
@@ -135,6 +167,15 @@
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
+        }
+
+        /* Status badges in dropdown */
+        .status-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            margin-left: 8px;
         }
 
         /* Tickets List */
@@ -188,6 +229,15 @@
             font-size: 1.25rem;
             font-weight: 700;
             color: var(--text);
+        }
+
+        .ticket-type {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            background: var(--bg-input);
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 8px;
         }
 
         .ticket-time {
@@ -337,8 +387,13 @@
             <h2>New Ticket</h2>
             <form id="ticketForm">
                 <div class="form-group">
-                    <label for="item">Item to Repair *</label>
-                    <input type="text" id="item" placeholder="e.g., IB2, Blower, Mower" required>
+                    <label for="itemSearch">Search Equipment *</label>
+                    <div class="search-wrapper">
+                        <input type="text" id="itemSearch" placeholder="Type to search..." oninput="filterItems()">
+                    </div>
+                    <select id="itemSelect" required size="6">
+                        <option value="" disabled selected>Loading equipment...</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="assignedTo">Truck / Crew Leader</label>
@@ -383,7 +438,7 @@
         <details class="settings">
             <summary>Settings</summary>
             <div class="settings-content">
-                <label for="apiUrl">API URL (Google Apps Script)</label>
+                <label for="apiUrl">API URL (Branches V1 Apps Script)</label>
                 <input type="text" id="apiUrl" placeholder="https://script.google.com/macros/s/...">
                 <button class="btn btn-primary" style="margin-top: 12px;" onclick="saveSettings()">Save</button>
             </div>
@@ -394,7 +449,10 @@
         // ============================================
         // CONFIGURATION
         // ============================================
-        let API_URL = localStorage.getItem('shopTicketsApiUrl') || '';
+        // Default to Branches V1 API URL
+        const DEFAULT_API = 'https://script.google.com/macros/s/AKfycbxWHqo7-YySZyMKrGTQMcnhhEtg4s_p57o5XhP-9tmxU8aSEBDvQ1CKq1l52I1Te6MneQ/exec';
+        let API_URL = localStorage.getItem('shopTicketsApiUrl') || DEFAULT_API;
+        let fleetItems = [];
 
         // ============================================
         // INITIALIZATION
@@ -403,6 +461,7 @@
             document.getElementById('apiUrl').value = API_URL;
 
             if (API_URL) {
+                loadFleetItems();
                 loadTickets();
             } else {
                 document.getElementById('openTickets').innerHTML = `
@@ -423,9 +482,9 @@
         });
 
         // ============================================
-        // API CALLS
+        // API CALLS (Branches V1 format)
         // ============================================
-        async function apiCall(action, data = {}) {
+        async function callAPI(functionName, parameters = []) {
             if (!API_URL) {
                 throw new Error('API URL not configured');
             }
@@ -433,7 +492,7 @@
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify({ action, ...data })
+                body: JSON.stringify({ function: functionName, parameters })
             });
 
             const result = await response.json();
@@ -444,12 +503,94 @@
         }
 
         // ============================================
+        // LOAD FLEET ITEMS
+        // ============================================
+        async function loadFleetItems() {
+            try {
+                const result = await callAPI('getFleetItemsForRepair');
+
+                if (result.success && result.response?.success && result.response?.items) {
+                    fleetItems = result.response.items;
+                } else if (result.response?.items) {
+                    fleetItems = result.response.items;
+                } else {
+                    fleetItems = [];
+                }
+
+                renderItemSelect();
+            } catch (error) {
+                console.error('Error loading fleet items:', error);
+                document.getElementById('itemSelect').innerHTML = '<option value="">Error loading equipment</option>';
+            }
+        }
+
+        // ============================================
+        // RENDER ITEM SELECT
+        // ============================================
+        function renderItemSelect(filter = '') {
+            const select = document.getElementById('itemSelect');
+            const filterLower = filter.toLowerCase();
+
+            const filtered = fleetItems.filter(item =>
+                !filter ||
+                item.name.toLowerCase().includes(filterLower) ||
+                item.type.toLowerCase().includes(filterLower) ||
+                (item.id && item.id.toLowerCase().includes(filterLower))
+            );
+
+            if (filtered.length === 0) {
+                select.innerHTML = '<option value="" disabled>No matching equipment</option>';
+                return;
+            }
+
+            // Group by type
+            const grouped = {};
+            filtered.forEach(item => {
+                if (!grouped[item.type]) grouped[item.type] = [];
+                grouped[item.type].push(item);
+            });
+
+            let html = '';
+            Object.keys(grouped).sort().forEach(type => {
+                html += `<optgroup label="${escapeHtml(type)}">`;
+                grouped[type].forEach(item => {
+                    const statusText = item.status === 'In Repair' ? ' [IN REPAIR]' : '';
+                    const disabled = item.status === 'In Repair' ? 'disabled' : '';
+                    html += `<option value="${escapeHtml(item.id)}"
+                                data-name="${escapeHtml(item.name)}"
+                                data-type="${escapeHtml(item.type)}"
+                                ${disabled}>
+                                ${escapeHtml(item.name)}${statusText}
+                            </option>`;
+                });
+                html += '</optgroup>';
+            });
+
+            select.innerHTML = html;
+        }
+
+        function filterItems() {
+            const search = document.getElementById('itemSearch').value;
+            renderItemSelect(search);
+        }
+
+        // ============================================
         // LOAD TICKETS
         // ============================================
         async function loadTickets() {
             try {
-                const result = await apiCall('getTickets');
-                const { open, completed } = result.data;
+                const result = await callAPI('getRepairTickets');
+
+                let open = [];
+                let completed = [];
+
+                if (result.success && result.response?.success && result.response?.data) {
+                    open = result.response.data.open || [];
+                    completed = result.response.data.completed || [];
+                } else if (result.response?.data) {
+                    open = result.response.data.open || [];
+                    completed = result.response.data.completed || [];
+                }
 
                 renderTickets('openTickets', open, false);
                 renderTickets('completedTickets', completed, true);
@@ -486,7 +627,10 @@
             container.innerHTML = tickets.map(ticket => `
                 <div class="ticket-card ${isCompleted ? 'completed' : ''}">
                     <div class="ticket-header">
-                        <div class="ticket-item">${escapeHtml(ticket.item)}</div>
+                        <div>
+                            <span class="ticket-item">${escapeHtml(ticket.assetName || ticket.item || 'Unknown')}</span>
+                            ${ticket.assetType ? `<span class="ticket-type">${escapeHtml(ticket.assetType)}</span>` : ''}
+                        </div>
                         <div class="ticket-time">${formatTime(ticket.created)}</div>
                     </div>
                     ${ticket.assignedTo ? `<div class="ticket-assigned">${escapeHtml(ticket.assignedTo)}</div>` : ''}
@@ -513,22 +657,34 @@
         async function handleSubmit(e) {
             e.preventDefault();
 
+            const select = document.getElementById('itemSelect');
+            const selectedOption = select.options[select.selectedIndex];
+
+            if (!selectedOption || !selectedOption.value) {
+                showToast('Please select an item', 'error');
+                return;
+            }
+
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
             btn.textContent = 'Creating...';
 
             try {
-                await apiCall('addTicket', {
-                    item: document.getElementById('item').value,
+                await callAPI('createRepairTicket', [{
+                    assetId: selectedOption.value,
+                    assetName: selectedOption.dataset.name,
+                    assetType: selectedOption.dataset.type,
                     assignedTo: document.getElementById('assignedTo').value,
                     notes: document.getElementById('notes').value
-                });
+                }]);
 
                 // Clear form
                 document.getElementById('ticketForm').reset();
+                document.getElementById('itemSearch').value = '';
+                renderItemSelect();
 
-                // Reload tickets
-                await loadTickets();
+                // Reload data
+                await Promise.all([loadTickets(), loadFleetItems()]);
 
                 showToast('Ticket created!', 'success');
             } catch (error) {
@@ -544,8 +700,8 @@
         // ============================================
         async function completeTicket(ticketId) {
             try {
-                await apiCall('completeTicket', { ticketId });
-                await loadTickets();
+                await callAPI('completeRepairTicket', [ticketId]);
+                await Promise.all([loadTickets(), loadFleetItems()]);
                 showToast('Ticket completed!', 'success');
             } catch (error) {
                 showToast('Error: ' + error.message, 'error');
@@ -559,8 +715,8 @@
             if (!confirm('Delete this ticket?')) return;
 
             try {
-                await apiCall('deleteTicket', { ticketId });
-                await loadTickets();
+                await callAPI('deleteRepairTicket', [ticketId]);
+                await Promise.all([loadTickets(), loadFleetItems()]);
                 showToast('Ticket deleted', 'success');
             } catch (error) {
                 showToast('Error: ' + error.message, 'error');
@@ -574,7 +730,10 @@
             API_URL = document.getElementById('apiUrl').value.trim();
             localStorage.setItem('shopTicketsApiUrl', API_URL);
             showToast('Settings saved!', 'success');
-            if (API_URL) loadTickets();
+            if (API_URL) {
+                loadFleetItems();
+                loadTickets();
+            }
         }
 
         // ============================================

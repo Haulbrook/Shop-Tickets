@@ -461,7 +461,8 @@
         // ============================================
         // CONFIGURATION
         // ============================================
-        let API_URL = localStorage.getItem('shopTicketsApiUrl') || '';
+        const DEFAULT_API = 'https://script.google.com/macros/s/AKfycbxWHqo7-YySZyMKrGTQMcnhhEtg4s_p57o5XhP-9tmxU8aSEBDvQ1CKq1l52I1Te6MneQ/exec';
+        let API_URL = localStorage.getItem('shopTicketsApiUrl') || DEFAULT_API;
         const REFRESH_INTERVAL = 30000; // 30 seconds
 
         // ============================================
@@ -496,13 +497,13 @@
         }
 
         // ============================================
-        // API
+        // API (Branches V1 format)
         // ============================================
-        async function apiCall(action, data = {}) {
+        async function callAPI(functionName, parameters = []) {
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify({ action, ...data })
+                body: JSON.stringify({ function: functionName, parameters })
             });
             return response.json();
         }
@@ -512,16 +513,23 @@
         // ============================================
         async function loadTickets() {
             try {
-                const result = await apiCall('getTickets');
+                const result = await callAPI('getRepairTickets');
 
-                if (result.success) {
-                    renderOpenTickets(result.data.open);
-                    renderCompletedTickets(result.data.completed);
-                    setStatus(true);
-                    updateLastUpdated();
-                } else {
-                    setStatus(false);
+                let open = [];
+                let completed = [];
+
+                if (result.success && result.response?.success && result.response?.data) {
+                    open = result.response.data.open || [];
+                    completed = result.response.data.completed || [];
+                } else if (result.response?.data) {
+                    open = result.response.data.open || [];
+                    completed = result.response.data.completed || [];
                 }
+
+                renderOpenTickets(open);
+                renderCompletedTickets(completed);
+                setStatus(true);
+                updateLastUpdated();
             } catch (error) {
                 console.error('Error loading tickets:', error);
                 setStatus(false);
@@ -547,7 +555,7 @@
 
             container.innerHTML = tickets.map(ticket => `
                 <div class="ticket" onclick="completeTicket('${ticket.ticketId}', this)">
-                    <div class="ticket-item">${escapeHtml(ticket.item)}</div>
+                    <div class="ticket-item">${escapeHtml(ticket.assetName || ticket.item || 'Unknown')}</div>
                     ${ticket.assignedTo ? `<div class="ticket-assigned">${escapeHtml(ticket.assignedTo)}</div>` : ''}
                     ${ticket.notes ? `<div class="ticket-notes">${escapeHtml(ticket.notes)}</div>` : ''}
                     <div class="ticket-time">
@@ -574,7 +582,7 @@
 
             container.innerHTML = tickets.map(ticket => `
                 <div class="ticket completed-card">
-                    <div class="ticket-item">${escapeHtml(ticket.item)}</div>
+                    <div class="ticket-item">${escapeHtml(ticket.assetName || ticket.item || 'Unknown')}</div>
                     ${ticket.assignedTo ? `<div class="ticket-assigned">${escapeHtml(ticket.assignedTo)}</div>` : ''}
                     <div class="ticket-time">Completed: ${formatTime(ticket.completed)}</div>
                 </div>
@@ -588,13 +596,13 @@
             element.classList.add('completing');
 
             try {
-                const result = await apiCall('completeTicket', { ticketId });
+                const result = await callAPI('completeRepairTicket', [ticketId]);
 
-                if (result.success) {
+                if (result.success && result.response?.success) {
                     await loadTickets();
                 } else {
                     element.classList.remove('completing');
-                    alert('Error: ' + result.error);
+                    alert('Error: ' + (result.response?.error || result.error || 'Unknown error'));
                 }
             } catch (error) {
                 element.classList.remove('completing');
