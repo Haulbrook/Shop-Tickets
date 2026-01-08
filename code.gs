@@ -140,9 +140,9 @@ function getFleetItemsForRepair() {
 
     // Column indexes for Assets sheet (0-based)
     const ASSET_COLS = {
-      ASSET_ID: 0,      // A - Asset ID
-      RFID: 1,          // B - RFID
-      ASSET_NAME: 2,    // C - Asset Name
+      ASSET_NAME: 0,    // A - Asset Name
+      ASSET_ID: 1,      // B - Asset ID
+      RFID: 2,          // C - RFID
       CATEGORY: 3,      // D - Category
       MANUFACTURER: 4,  // E - Manufacturer
       MODEL: 5,         // F - Model
