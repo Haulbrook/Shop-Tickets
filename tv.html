@@ -377,6 +377,214 @@
         *::-webkit-scrollbar {
             display: none;
         }
+
+        /* ============================================ COMPLETION MODAL ============================================ */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 2vh;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border-radius: clamp(12px, 2vw, 24px);
+            padding: clamp(20px, 3vh, 40px);
+            width: 95%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 40px var(--primary-glow);
+        }
+
+        .modal h2 {
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            color: var(--primary);
+            margin-bottom: clamp(8px, 1vh, 16px);
+        }
+
+        .modal-subtitle {
+            color: var(--text-muted);
+            font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+            margin-bottom: clamp(16px, 2vh, 24px);
+        }
+
+        .modal .form-group {
+            margin-bottom: clamp(12px, 1.5vh, 20px);
+        }
+
+        .modal .form-group label {
+            display: block;
+            margin-bottom: clamp(4px, 0.5vh, 8px);
+            font-weight: 600;
+            font-size: clamp(0.85rem, 1.3vw, 1.1rem);
+            color: var(--text-muted);
+        }
+
+        .modal .form-group label .required {
+            color: var(--danger);
+        }
+
+        .modal .form-group input,
+        .modal .form-group textarea,
+        .modal .form-group select {
+            width: 100%;
+            padding: clamp(10px, 1.5vh, 16px);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg);
+            color: var(--text);
+            font-size: clamp(1rem, 1.5vw, 1.3rem);
+        }
+
+        .modal .form-group input:focus,
+        .modal .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .modal .form-group textarea {
+            resize: vertical;
+            min-height: clamp(60px, 8vh, 100px);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: clamp(8px, 1vw, 16px);
+            padding: clamp(10px, 1.5vh, 16px);
+            background: var(--bg);
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: clamp(20px, 2.5vh, 30px);
+            height: clamp(20px, 2.5vh, 30px);
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin: 0 !important;
+            cursor: pointer;
+            color: var(--text) !important;
+            font-size: clamp(1rem, 1.5vw, 1.3rem) !important;
+        }
+
+        .conditional-field {
+            display: none;
+            margin-top: clamp(8px, 1vh, 12px);
+            padding: clamp(10px, 1.5vh, 16px);
+            background: var(--bg-elevated);
+            border-radius: 8px;
+            border: 1px dashed var(--border);
+        }
+
+        .conditional-field.show {
+            display: block;
+        }
+
+        .labor-rate-options {
+            display: flex;
+            gap: clamp(10px, 1.5vw, 20px);
+        }
+
+        .labor-rate-option {
+            flex: 1;
+            padding: clamp(12px, 2vh, 24px);
+            background: var(--bg);
+            border: 3px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .labor-rate-option:hover {
+            border-color: var(--text-muted);
+        }
+
+        .labor-rate-option.selected {
+            border-color: var(--primary);
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .labor-rate-option input {
+            display: none;
+        }
+
+        .labor-rate-option .rate-name {
+            font-weight: 700;
+            font-size: clamp(1.1rem, 1.8vw, 1.5rem);
+            color: var(--text);
+            display: block;
+        }
+
+        .labor-rate-option .rate-price {
+            color: var(--primary);
+            font-size: clamp(1rem, 1.5vw, 1.3rem);
+            margin-top: clamp(4px, 0.5vh, 8px);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: clamp(12px, 1.5vw, 20px);
+            margin-top: clamp(20px, 3vh, 32px);
+        }
+
+        .modal-actions button {
+            flex: 1;
+            padding: clamp(14px, 2vh, 24px);
+            border: none;
+            border-radius: 12px;
+            font-size: clamp(1rem, 1.5vw, 1.3rem);
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-cancel-modal {
+            background: var(--bg);
+            color: var(--text-muted);
+            border: 2px solid var(--border) !important;
+        }
+
+        .btn-cancel-modal:hover {
+            background: var(--border);
+        }
+
+        .btn-submit-modal {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: white;
+        }
+
+        .btn-submit-modal:hover {
+            box-shadow: 0 8px 24px rgba(34, 197, 94, 0.4);
+        }
+
+        .btn-submit-modal:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .field-error {
+            border-color: var(--danger) !important;
+        }
+
+        .error-text {
+            color: var(--danger);
+            font-size: clamp(0.75rem, 1vw, 0.9rem);
+            margin-top: clamp(4px, 0.5vh, 6px);
+        }
     </style>
 </head>
 <body>
@@ -453,6 +661,73 @@
             <div>
                 <button class="btn-save" onclick="saveSettings()">Save</button>
                 <button class="btn-cancel" onclick="hideSettings()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Completion Modal -->
+    <div class="modal-overlay" id="completionModal">
+        <div class="modal">
+            <h2>Complete Repair</h2>
+            <p class="modal-subtitle">Fill in the repair details to mark this ticket complete</p>
+
+            <input type="hidden" id="completionTicketId">
+
+            <div class="form-group">
+                <label for="completionAssetName">Asset Name <span class="required">*</span></label>
+                <input type="text" id="completionAssetName" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="completionRepairDate">Repair Date <span class="required">*</span></label>
+                <input type="date" id="completionRepairDate">
+            </div>
+
+            <div class="form-group">
+                <div class="checkbox-group" onclick="togglePartUsed()">
+                    <input type="checkbox" id="completionPartUsed" onclick="event.stopPropagation(); togglePartUsed()">
+                    <label for="completionPartUsed">Part Used</label>
+                </div>
+                <div class="conditional-field" id="partDetailsField">
+                    <label for="completionPartDetails">Part Name, Number & Price <span class="required">*</span></label>
+                    <textarea id="completionPartDetails" placeholder="e.g., Air Filter #AF-1234 - $45.00"></textarea>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="completionTaskDescription">Task Description <span class="required">*</span></label>
+                <textarea id="completionTaskDescription" placeholder="Describe the repair work performed..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="completionLaborHours">Labor Hours <span class="required">*</span></label>
+                <input type="number" id="completionLaborHours" step="0.25" min="0.25" placeholder="e.g., 2.5">
+            </div>
+
+            <div class="form-group">
+                <label>Labor Rate Type <span class="required">*</span></label>
+                <div class="labor-rate-options">
+                    <div class="labor-rate-option selected" onclick="selectLaborRate('standard')">
+                        <input type="radio" name="laborRate" value="standard" id="rateStandard" checked>
+                        <span class="rate-name">Standard</span>
+                        <span class="rate-price">$80/hr</span>
+                    </div>
+                    <div class="labor-rate-option" onclick="selectLaborRate('emergency')">
+                        <input type="radio" name="laborRate" value="emergency" id="rateEmergency">
+                        <span class="rate-name">Emergency</span>
+                        <span class="rate-price">$150/hr</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="completionAdditionalNotes">Additional Notes <span style="color: var(--text-muted); font-weight: normal;">(Optional)</span></label>
+                <textarea id="completionAdditionalNotes" placeholder="e.g., 7/8&quot; ratchet needed, Small Dingo for Track swap"></textarea>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-cancel-modal" onclick="closeCompletionModal()">Cancel</button>
+                <button class="btn-submit-modal" id="submitCompletionBtn" onclick="submitCompletion()">Mark Complete</button>
             </div>
         </div>
     </div>
@@ -554,7 +829,7 @@
             }
 
             container.innerHTML = tickets.map(ticket => `
-                <div class="ticket" onclick="completeTicket('${ticket.ticketId}', this)">
+                <div class="ticket" onclick="openCompletionModal('${ticket.ticketId}', '${escapeHtml(ticket.assetName || ticket.item || '')}')">
                     <div class="ticket-item">${escapeHtml(ticket.assetName || ticket.item || 'Unknown')}</div>
                     ${ticket.assignedTo ? `<div class="ticket-assigned">${escapeHtml(ticket.assignedTo)}</div>` : ''}
                     ${ticket.notes ? `<div class="ticket-notes">${escapeHtml(ticket.notes)}</div>` : ''}
@@ -590,23 +865,161 @@
         }
 
         // ============================================
-        // COMPLETE TICKET
+        // COMPLETE TICKET - MODAL FUNCTIONS
         // ============================================
-        async function completeTicket(ticketId, element) {
-            element.classList.add('completing');
+        function openCompletionModal(ticketId, assetName) {
+            // Set ticket ID
+            document.getElementById('completionTicketId').value = ticketId;
+
+            // Set asset name (read-only)
+            document.getElementById('completionAssetName').value = assetName || '';
+
+            // Auto-populate repair date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('completionRepairDate').value = today;
+
+            // Reset form fields
+            document.getElementById('completionPartUsed').checked = false;
+            document.getElementById('partDetailsField').classList.remove('show');
+            document.getElementById('completionPartDetails').value = '';
+            document.getElementById('completionTaskDescription').value = '';
+            document.getElementById('completionLaborHours').value = '';
+            document.getElementById('completionAdditionalNotes').value = '';
+
+            // Reset labor rate to standard
+            selectLaborRate('standard');
+
+            // Clear any error states
+            document.querySelectorAll('.field-error').forEach(el => el.classList.remove('field-error'));
+            document.querySelectorAll('.error-text').forEach(el => el.remove());
+
+            // Show modal
+            document.getElementById('completionModal').classList.add('show');
+        }
+
+        function closeCompletionModal() {
+            document.getElementById('completionModal').classList.remove('show');
+        }
+
+        function togglePartUsed() {
+            const checkbox = document.getElementById('completionPartUsed');
+            const partField = document.getElementById('partDetailsField');
+
+            if (checkbox.checked) {
+                partField.classList.add('show');
+            } else {
+                partField.classList.remove('show');
+                document.getElementById('completionPartDetails').value = '';
+            }
+        }
+
+        function selectLaborRate(rate) {
+            // Update radio buttons
+            document.getElementById('rateStandard').checked = (rate === 'standard');
+            document.getElementById('rateEmergency').checked = (rate === 'emergency');
+
+            // Update visual selection
+            document.querySelectorAll('.labor-rate-option').forEach(el => {
+                el.classList.remove('selected');
+            });
+
+            const selectedOption = rate === 'standard'
+                ? document.querySelector('.labor-rate-option:first-child')
+                : document.querySelector('.labor-rate-option:last-child');
+            selectedOption.classList.add('selected');
+        }
+
+        async function submitCompletion() {
+            // Clear previous errors
+            document.querySelectorAll('.field-error').forEach(el => el.classList.remove('field-error'));
+            document.querySelectorAll('.error-text').forEach(el => el.remove());
+
+            // Gather form data
+            const ticketId = document.getElementById('completionTicketId').value;
+            const assetName = document.getElementById('completionAssetName').value;
+            const repairDate = document.getElementById('completionRepairDate').value;
+            const partUsed = document.getElementById('completionPartUsed').checked;
+            const partDetails = document.getElementById('completionPartDetails').value.trim();
+            const taskDescription = document.getElementById('completionTaskDescription').value.trim();
+            const laborHours = document.getElementById('completionLaborHours').value;
+            const laborRateType = document.getElementById('rateStandard').checked ? 'standard' : 'emergency';
+            const laborRate = laborRateType === 'standard' ? 80 : 150;
+            const additionalNotes = document.getElementById('completionAdditionalNotes').value.trim();
+
+            // Validation
+            let hasErrors = false;
+
+            function showError(fieldId, message) {
+                const field = document.getElementById(fieldId);
+                field.classList.add('field-error');
+                const errorEl = document.createElement('div');
+                errorEl.className = 'error-text';
+                errorEl.textContent = message;
+                field.parentNode.appendChild(errorEl);
+                hasErrors = true;
+            }
+
+            if (!assetName) {
+                showError('completionAssetName', 'Asset name is required');
+            }
+
+            if (!repairDate) {
+                showError('completionRepairDate', 'Repair date is required');
+            }
+
+            if (partUsed && !partDetails) {
+                showError('completionPartDetails', 'Part details are required when part is used');
+            }
+
+            if (!taskDescription) {
+                showError('completionTaskDescription', 'Task description is required');
+            }
+
+            if (!laborHours || parseFloat(laborHours) <= 0) {
+                showError('completionLaborHours', 'Valid labor hours are required');
+            }
+
+            if (hasErrors) {
+                return;
+            }
+
+            // Calculate total labor cost
+            const totalLaborCost = parseFloat(laborHours) * laborRate;
+
+            // Prepare completion data
+            const completionData = {
+                ticketId,
+                assetName,
+                repairDate,
+                partUsed,
+                partDetails: partUsed ? partDetails : '',
+                taskDescription,
+                laborHours: parseFloat(laborHours),
+                laborRateType,
+                laborRate,
+                totalLaborCost,
+                additionalNotes
+            };
+
+            // Disable button and show loading
+            const btn = document.getElementById('submitCompletionBtn');
+            btn.disabled = true;
+            btn.textContent = 'Completing...';
 
             try {
-                const result = await callAPI('completeRepairTicket', [ticketId]);
+                const result = await callAPI('completeRepairTicket', [completionData]);
 
                 if (result.success && result.response?.success) {
                     await loadTickets();
+                    closeCompletionModal();
                 } else {
-                    element.classList.remove('completing');
                     alert('Error: ' + (result.response?.error || result.error || 'Unknown error'));
                 }
             } catch (error) {
-                element.classList.remove('completing');
                 alert('Error completing ticket');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Mark Complete';
             }
         }
 
