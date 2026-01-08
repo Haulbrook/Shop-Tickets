@@ -11,8 +11,11 @@ const SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID_HERE'; // Replace with your Google S
 const SHEET_NAME = 'Tickets';
 
 // External sheet for repair log (replace with your decision-maker sheet ID)
-const EXTERNAL_SHEET_ID = ''; // Optional: Your external Google Sheet ID for repair log
-const EXTERNAL_SHEET_NAME = 'RepairLog'; // Sheet name in external spreadsheet
+const EXTERNAL_SHEET_ID = '1aF_6nHHp8NA-eETkwZMUuTlPRPOiiKEvou-F9QuVTD8'; // Your decision-maker sheet
+const EXTERNAL_SHEET_NAME = 'RepairLog'; // Sheet name for completed repairs log
+
+// Assets sheet configuration (same spreadsheet as external sheet)
+const ASSETS_SHEET_NAME = 'Assets'; // Sheet name containing equipment list
 
 // Column indexes (0-based)
 const COLS = {
@@ -66,20 +69,44 @@ function handleRequest(e) {
 
     // Merge params and body
     const data = { ...params, ...body };
-    const action = data.action || 'getTickets';
+
+    // Support both 'action' format and 'function' format (Branches V1 style)
+    const action = data.action || data.function || 'getTickets';
+    const functionParams = data.parameters || [];
 
     switch (action) {
       case 'getTickets':
-        result = getTickets();
+      case 'getRepairTickets':
+        result = { success: true, response: { success: true, data: getTickets().data } };
+        break;
+      case 'getFleetItems':
+      case 'getFleetItemsForRepair':
+        const fleetResult = getFleetItemsForRepair();
+        result = { success: true, response: { success: fleetResult.success, items: fleetResult.items, error: fleetResult.error } };
         break;
       case 'addTicket':
-        result = addTicket(data);
+      case 'createRepairTicket':
+        const ticketData = functionParams[0] || data;
+        const addResult = addTicket({
+          item: ticketData.assetName || ticketData.item,
+          assignedTo: ticketData.assignedTo,
+          notes: ticketData.notes,
+          assetId: ticketData.assetId,
+          assetType: ticketData.assetType
+        });
+        result = { success: true, response: addResult };
         break;
       case 'completeTicket':
-        result = completeTicket(data.ticketId);
+      case 'completeRepairTicket':
+        const completionData = functionParams[0] || data.ticketId;
+        const completeResult = completeTicket(completionData);
+        result = { success: true, response: completeResult };
         break;
       case 'deleteTicket':
-        result = deleteTicket(data.ticketId);
+      case 'deleteRepairTicket':
+        const deleteId = functionParams[0] || data.ticketId;
+        const deleteResult = deleteTicket(deleteId);
+        result = { success: true, response: deleteResult };
         break;
       default:
         result = { success: false, error: 'Unknown action: ' + action };
@@ -94,6 +121,94 @@ function handleRequest(e) {
   }
 
   return output;
+}
+
+// ============================================
+// GET FLEET ITEMS FOR REPAIR (from Assets sheet)
+// ============================================
+function getFleetItemsForRepair() {
+  try {
+    const ss = SpreadsheetApp.openById(EXTERNAL_SHEET_ID);
+    const sheet = ss.getSheetByName(ASSETS_SHEET_NAME);
+
+    if (!sheet) {
+      return { success: false, error: 'Assets sheet not found' };
+    }
+
+    const data = sheet.getDataRange().getValues();
+    const items = [];
+
+    // Column indexes for Assets sheet (0-based)
+    const ASSET_COLS = {
+      ASSET_ID: 0,      // A - Asset ID
+      RFID: 1,          // B - RFID
+      ASSET_NAME: 2,    // C - Asset Name
+      CATEGORY: 3,      // D - Category
+      MANUFACTURER: 4,  // E - Manufacturer
+      MODEL: 5,         // F - Model
+      PURCHASE_DATE: 6, // G - Purchase Date
+      NOTES: 7,         // H - Notes
+      REPLACEMENT_COST: 8, // I - Replacement Cost
+      TOTAL_REPAIRS: 9, // J - Total Repairs
+      PERCENT_REPLACEMENT: 10, // K - % of Replacement
+      STATUS: 11        // L - Status
+    };
+
+    // Skip header row
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      const assetName = String(row[ASSET_COLS.ASSET_NAME] || '').trim();
+      const assetId = String(row[ASSET_COLS.ASSET_ID] || '').trim();
+      const rfid = String(row[ASSET_COLS.RFID] || '').trim();
+      const category = String(row[ASSET_COLS.CATEGORY] || '').trim();
+      const status = String(row[ASSET_COLS.STATUS] || '').trim();
+
+      // Skip empty rows
+      if (!assetName) continue;
+
+      // Determine display name and identifier type
+      let displayName, identifierType, identifier;
+
+      if (assetId) {
+        // Preference 1: Asset Name + Asset ID
+        displayName = assetName + ' [ID: ' + assetId + ']';
+        identifierType = 'Asset ID';
+        identifier = assetId;
+      } else if (rfid) {
+        // Preference 2: Asset Name + RFID
+        displayName = assetName + ' [RFID: ' + rfid + ']';
+        identifierType = 'RFID';
+        identifier = rfid;
+      } else {
+        // No identifier
+        displayName = assetName + ' [No ID]';
+        identifierType = 'None';
+        identifier = '';
+      }
+
+      items.push({
+        id: assetId || rfid || 'ROW-' + i,  // Unique identifier for the item
+        name: displayName,                   // Display name with identifier
+        assetName: assetName,                // Raw asset name
+        assetId: assetId,
+        rfid: rfid,
+        identifierType: identifierType,      // 'Asset ID', 'RFID', or 'None'
+        identifier: identifier,
+        type: category || 'Uncategorized',   // Category for grouping
+        status: status                       // Status from sheet
+      });
+    }
+
+    // Sort by category, then by name
+    items.sort((a, b) => {
+      if (a.type !== b.type) return a.type.localeCompare(b.type);
+      return a.name.localeCompare(b.name);
+    });
+
+    return { success: true, items: items };
+  } catch (error) {
+    return { success: false, error: error.toString() };
+  }
 }
 
 // ============================================
