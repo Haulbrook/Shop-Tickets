@@ -12,7 +12,7 @@ const SHEET_NAME = 'Tickets';
 
 // External sheet for repair log (replace with your decision-maker sheet ID)
 const EXTERNAL_SHEET_ID = '1aF_6nHHp8NA-eETkwZMUuTlPRPOiiKEvou-F9QuVTD8'; // Your decision-maker sheet
-const EXTERNAL_SHEET_NAME = 'RepairLog'; // Sheet name for completed repairs log
+const EXTERNAL_SHEET_NAME = 'Repairs'; // Sheet name for completed repairs log
 
 // Assets sheet configuration (same spreadsheet as external sheet)
 const ASSETS_SHEET_NAME = 'Assets'; // Sheet name containing equipment list
@@ -373,56 +373,82 @@ function completeTicket(completionData) {
 }
 
 // ============================================
-// PUSH TO EXTERNAL SHEET (Repair Decision Log)
+// PUSH TO EXTERNAL SHEET (Repairs tab)
 // ============================================
+// Columns: Repair ID, Asset ID, Asset Name, Repair Date, Part Name, Part Cost ($),
+//          Labor Hours, Labor Rate ($/hr), Labor Cost ($), Total Repair Cost ($),
+//          Running Total ($), % of Replacement, Days Since Last Repair, Notes
 function pushToExternalSheet(ticketRow, repairDetails, repairDate, completedTime) {
   try {
     const extSS = SpreadsheetApp.openById(EXTERNAL_SHEET_ID);
     let extSheet = extSS.getSheetByName(EXTERNAL_SHEET_NAME);
 
-    // Create sheet if it doesn't exist
     if (!extSheet) {
-      extSheet = extSS.insertSheet(EXTERNAL_SHEET_NAME);
-      // Set headers
-      extSheet.getRange(1, 1, 1, 14).setValues([[
-        'Completed Date',
-        'Ticket ID',
-        'Asset Name',
-        'Repair Date',
-        'Original Issue',
-        'Task Description',
-        'Part Used',
-        'Part Details',
-        'Labor Hours',
-        'Labor Rate Type',
-        'Labor Rate',
-        'Total Labor Cost',
-        'Additional Notes',
-        'Assigned To'
-      ]]);
-      extSheet.getRange(1, 1, 1, 14)
-        .setFontWeight('bold')
-        .setBackground('#4a4a4a')
-        .setFontColor('#ffffff');
-      extSheet.setFrozenRows(1);
+      console.error('Repairs sheet not found');
+      return false;
     }
 
-    // Append the repair data
-    extSheet.appendRow([
-      completedTime,
-      String(ticketRow[COLS.TICKET_ID] || ''),
-      repairDetails.assetName || String(ticketRow[COLS.ITEM] || ''),
-      repairDate,
-      String(ticketRow[COLS.NOTES] || ''),
+    // Generate Repair ID: REP-YYYYMMDD-HHMMSS
+    const repairId = 'REP-' + Utilities.formatDate(completedTime, Session.getScriptTimeZone(), 'yyyyMMdd-HHmmss');
+
+    // Get asset info - prefer Asset ID from completion data
+    const assetName = repairDetails.assetName || String(ticketRow[COLS.ITEM] || '');
+
+    // Try to extract asset ID from the asset name if it contains [ID: xxx]
+    let assetId = '';
+    const idMatch = assetName.match(/\[ID:\s*([^\]]+)\]/);
+    const rfidMatch = assetName.match(/\[RFID:\s*([^\]]+)\]/);
+    if (idMatch) {
+      assetId = idMatch[1].trim();
+    } else if (rfidMatch) {
+      assetId = rfidMatch[1].trim();
+    }
+
+    // Clean asset name (remove the [ID: xxx] or [RFID: xxx] part)
+    const cleanAssetName = assetName.replace(/\s*\[(ID|RFID|No ID):[^\]]*\]/g, '').trim();
+
+    // Parse part cost from part details if possible (look for $ amount)
+    let partCost = 0;
+    let partName = repairDetails.partDetails || '';
+    if (partName) {
+      const costMatch = partName.match(/\$\s*([\d,]+\.?\d*)/);
+      if (costMatch) {
+        partCost = parseFloat(costMatch[1].replace(',', '')) || 0;
+      }
+    }
+
+    // Calculate costs
+    const laborHours = repairDetails.laborHours || 0;
+    const laborRate = repairDetails.laborRate || 80;
+    const laborCost = laborHours * laborRate;
+    const totalRepairCost = laborCost + partCost;
+
+    // Combine notes: Task Description + Additional Notes + Original Issue
+    const combinedNotes = [
       repairDetails.taskDescription || '',
-      repairDetails.partUsed ? 'YES' : 'NO',
-      repairDetails.partDetails || '',
-      repairDetails.laborHours || 0,
-      repairDetails.laborRateType || 'standard',
-      repairDetails.laborRate || 80,
-      repairDetails.totalLaborCost || 0,
-      repairDetails.additionalNotes || '',
-      String(ticketRow[COLS.ASSIGNED_TO] || '')
+      repairDetails.additionalNotes ? 'Notes: ' + repairDetails.additionalNotes : '',
+      ticketRow[COLS.NOTES] ? 'Original Issue: ' + String(ticketRow[COLS.NOTES]) : ''
+    ].filter(n => n).join(' | ');
+
+    // Append the repair data matching existing columns:
+    // Repair ID, Asset ID, Asset Name, Repair Date, Part Name, Part Cost ($),
+    // Labor Hours, Labor Rate ($/hr), Labor Cost ($), Total Repair Cost ($),
+    // Running Total ($), % of Replacement, Days Since Last Repair, Notes
+    extSheet.appendRow([
+      repairId,           // A - Repair ID
+      assetId,            // B - Asset ID
+      cleanAssetName,     // C - Asset Name
+      repairDate,         // D - Repair Date
+      partName,           // E - Part Name (includes name, number, price as entered)
+      partCost,           // F - Part Cost ($)
+      laborHours,         // G - Labor Hours
+      laborRate,          // H - Labor Rate ($/hr)
+      laborCost,          // I - Labor Cost ($)
+      totalRepairCost,    // J - Total Repair Cost ($)
+      '',                 // K - Running Total ($) - leave blank for sheet formula
+      '',                 // L - % of Replacement - leave blank for sheet formula
+      '',                 // M - Days Since Last Repair - leave blank for sheet formula
+      combinedNotes       // N - Notes
     ]);
 
     return true;
