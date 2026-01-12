@@ -196,6 +196,18 @@
       // Use the global ASSET_DETAIL_COLS for consistent column mapping
       const C = ASSET_DETAIL_COLS;
 
+      // Only include assets with these Invisitag Groups
+      const allowedGroups = [
+        'powerheads',
+        'blower',
+        'mower',
+        'install truck',
+        'heavy machine',
+        'maintenance truck',
+        'trailer',
+        'office truck'
+      ];
+
       // Skip header row
       for (let i = 1; i < data.length; i++) {
         const row = data[i];
@@ -204,9 +216,13 @@
         const rfid = String(row[C.RFID] || '').trim();
         const category = String(row[C.DEPARTMENT] || '').trim();
         const status = String(row[C.REPAIR_STATUS] || '').trim();
+        const invisitagGroup = String(row[C.INVISITAG_GROUP] || '').trim().toLowerCase();
 
         // Skip empty rows
         if (!assetName) continue;
+
+        // Skip if Invisitag Group is not in allowed list
+        if (!allowedGroups.includes(invisitagGroup)) continue;
 
         // Determine display name based on department/category
         let displayName;
