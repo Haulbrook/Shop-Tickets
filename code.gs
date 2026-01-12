@@ -17,6 +17,55 @@
   // Assets sheet configuration (same spreadsheet as external sheet)
   const ASSETS_SHEET_NAME = 'Assets'; // Sheet name containing equipment list
 
+  // Full Asset column mapping (0-based) - for getAssetDetails
+  const ASSET_DETAIL_COLS = {
+    IN_OUT_SERVICE: 0,      // A
+    ASSET_GRADE: 1,         // B
+    NAME: 2,                // C
+    DEPARTMENT: 3,          // D
+    ASSET_NUMBER: 4,        // E
+    RFID: 5,                // F
+    SERIAL_VIN: 6,          // G
+    MODEL_NUM: 7,           // H
+    MAKE: 8,                // I
+    YEAR: 9,                // J
+    NOTES: 10,              // K
+    TAG_NUM: 11,            // L
+    BP_CARD_LAST: 12,       // M
+    INVISITAG_GROUP: 13,    // N
+    DATE_OF_PURCHASE: 14,   // O
+    FUEL_WATER_SEP: 15,     // P
+    OIL_TYPE: 16,           // Q
+    OIL_CAPACITY: 17,       // R
+    OIL_FILTER: 18,         // S
+    ENGINE: 19,             // T
+    LOCATION: 20,           // U
+    FUEL: 21,               // V
+    TRUCK_EQUIP_NUM: 22,    // W
+    OUTER_AIR_FILTER: 23,   // X
+    AIR_FILTER: 24,         // Y
+    CQ_INNER_AF: 25,        // Z
+    FUEL_FILTER: 26,        // AA
+    CQ_OUTER_AF: 27,        // AB
+    WIX_OUTER_AF: 28,       // AC
+    WIX_INNER_AF: 29,       // AD
+    FRONT_TIRE: 30,         // AE
+    REAR_TIRE: 31,          // AF
+    WIPER: 32,              // AG
+    AXLE: 33,               // AH
+    HEADLIGHT: 34,          // AI
+    HYDRAULIC_FLUID: 35,    // AJ
+    HYDRAULIC_FILTER_1: 36, // AK
+    HYDRAULIC_FILTER_2: 37, // AL
+    HYDRAULIC_FILTER_3: 38, // AM
+    WEIGHT_CAPACITY: 39,    // AN
+    TEETH_SPEC: 40,         // AO
+    REPLACEMENT_COST: 41,   // AP
+    TOTAL_REPAIR_COST: 42,  // AQ
+    PERCENT_REPLACEMENT: 43,// AR
+    REPAIR_STATUS: 44       // AS
+  };
+
   // Column indexes (0-based)
   const COLS = {
     TICKET_ID: 0,       // A
@@ -107,6 +156,11 @@
           const deleteId = functionParams[0] || data.ticketId;
           const deleteResult = deleteTicket(deleteId);
           result = { success: true, response: deleteResult };
+          break;
+        case 'getAssetDetails':
+          const assetId = functionParams[0] || data.assetId;
+          const assetResult = getAssetDetails(assetId);
+          result = { success: true, response: assetResult };
           break;
         default:
           result = { success: false, error: 'Unknown action: ' + action };
@@ -206,6 +260,107 @@
       });
 
       return { success: true, items: items };
+    } catch (error) {
+      return { success: false, error: error.toString() };
+    }
+  }
+
+  // ============================================
+  // GET ASSET DETAILS (full stats for sidebar)
+  // ============================================
+  function getAssetDetails(assetIdentifier) {
+    try {
+      const ss = SpreadsheetApp.openById(EXTERNAL_SHEET_ID);
+      const sheet = ss.getSheetByName(ASSETS_SHEET_NAME);
+
+      if (!sheet) {
+        return { success: false, error: 'Assets sheet not found' };
+      }
+
+      const data = sheet.getDataRange().getValues();
+      const C = ASSET_DETAIL_COLS;
+
+      // Find asset by Asset Number, RFID, Name, or row ID
+      for (let i = 1; i < data.length; i++) {
+        const row = data[i];
+        const assetNumber = String(row[C.ASSET_NUMBER] || '').trim();
+        const rfid = String(row[C.RFID] || '').trim();
+        const name = String(row[C.NAME] || '').trim();
+        const rowId = 'ROW-' + i;
+
+        // Match by various identifiers
+        if (assetIdentifier === assetNumber ||
+            assetIdentifier === rfid ||
+            assetIdentifier === rowId ||
+            assetIdentifier === name) {
+
+          return {
+            success: true,
+            asset: {
+              // Primary Info
+              inOutService: String(row[C.IN_OUT_SERVICE] || ''),
+              assetGrade: String(row[C.ASSET_GRADE] || ''),
+              name: String(row[C.NAME] || ''),
+              department: String(row[C.DEPARTMENT] || ''),
+              assetNumber: assetNumber,
+
+              // Identity
+              rfid: rfid,
+              serialVin: String(row[C.SERIAL_VIN] || ''),
+              tagNum: String(row[C.TAG_NUM] || ''),
+              bpCardLast: String(row[C.BP_CARD_LAST] || ''),
+              invisitagGroup: String(row[C.INVISITAG_GROUP] || ''),
+
+              // Equipment Specs
+              make: String(row[C.MAKE] || ''),
+              year: String(row[C.YEAR] || ''),
+              modelNum: String(row[C.MODEL_NUM] || ''),
+              engine: String(row[C.ENGINE] || ''),
+              fuel: String(row[C.FUEL] || ''),
+              location: String(row[C.LOCATION] || ''),
+              truckEquipNum: String(row[C.TRUCK_EQUIP_NUM] || ''),
+              weightCapacity: String(row[C.WEIGHT_CAPACITY] || ''),
+
+              // Fluids & Filters
+              oilType: String(row[C.OIL_TYPE] || ''),
+              oilCapacity: String(row[C.OIL_CAPACITY] || ''),
+              oilFilter: String(row[C.OIL_FILTER] || ''),
+              fuelWaterSep: String(row[C.FUEL_WATER_SEP] || ''),
+              fuelFilter: String(row[C.FUEL_FILTER] || ''),
+              airFilter: String(row[C.AIR_FILTER] || ''),
+              outerAirFilter: String(row[C.OUTER_AIR_FILTER] || ''),
+              cqInnerAF: String(row[C.CQ_INNER_AF] || ''),
+              cqOuterAF: String(row[C.CQ_OUTER_AF] || ''),
+              wixOuterAF: String(row[C.WIX_OUTER_AF] || ''),
+              wixInnerAF: String(row[C.WIX_INNER_AF] || ''),
+              hydraulicFluid: String(row[C.HYDRAULIC_FLUID] || ''),
+              hydraulicFilter1: String(row[C.HYDRAULIC_FILTER_1] || ''),
+              hydraulicFilter2: String(row[C.HYDRAULIC_FILTER_2] || ''),
+              hydraulicFilter3: String(row[C.HYDRAULIC_FILTER_3] || ''),
+
+              // Tires & Parts
+              frontTire: String(row[C.FRONT_TIRE] || ''),
+              rearTire: String(row[C.REAR_TIRE] || ''),
+              wiper: String(row[C.WIPER] || ''),
+              axle: String(row[C.AXLE] || ''),
+              headlight: String(row[C.HEADLIGHT] || ''),
+              teethSpec: String(row[C.TEETH_SPEC] || ''),
+
+              // Costs & Status
+              replacementCost: parseFloat(row[C.REPLACEMENT_COST]) || 0,
+              totalRepairCost: parseFloat(row[C.TOTAL_REPAIR_COST]) || 0,
+              percentReplacement: parseFloat(row[C.PERCENT_REPLACEMENT]) || 0,
+              repairStatus: String(row[C.REPAIR_STATUS] || ''),
+
+              // Other
+              dateOfPurchase: formatDateTime(row[C.DATE_OF_PURCHASE]),
+              notes: String(row[C.NOTES] || '')
+            }
+          };
+        }
+      }
+
+      return { success: false, error: 'Asset not found: ' + assetIdentifier };
     } catch (error) {
       return { success: false, error: error.toString() };
     }
