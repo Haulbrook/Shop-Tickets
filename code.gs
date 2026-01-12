@@ -192,64 +192,54 @@
       const data = sheet.getDataRange().getValues();
       const items = [];
 
-      // Column indexes for Assets sheet (0-based)
-      const ASSET_COLS = {
-        ASSET_ID: 0,      // A - Asset Name
-        ASSET_NAME: 1,    // B - Asset ID
-        RFID: 2,          // C - RFID
-        CATEGORY: 3,      // D - Category
-        MANUFACTURER: 4,  // E - Manufacturer
-        MODEL: 5,         // F - Model
-        PURCHASE_DATE: 6, // G - Purchase Date
-        NOTES: 7,         // H - Notes
-        REPLACEMENT_COST: 8, // I - Replacement Cost
-        TOTAL_REPAIRS: 9, // J - Total Repairs
-        PERCENT_REPLACEMENT: 10, // K - % of Replacement
-        STATUS: 11        // L - Status
-      };
+      // Use the global ASSET_DETAIL_COLS for consistent column mapping
+      const C = ASSET_DETAIL_COLS;
 
       // Skip header row
       for (let i = 1; i < data.length; i++) {
         const row = data[i];
-        const assetName = String(row[ASSET_COLS.ASSET_NAME] || '').trim();
-        const assetId = String(row[ASSET_COLS.ASSET_ID] || '').trim();
-        const rfid = String(row[ASSET_COLS.RFID] || '').trim();
-        const category = String(row[ASSET_COLS.CATEGORY] || '').trim();
-        const status = String(row[ASSET_COLS.STATUS] || '').trim();
+        const assetName = String(row[C.NAME] || '').trim();
+        const assetNumber = String(row[C.ASSET_NUMBER] || '').trim();
+        const rfid = String(row[C.RFID] || '').trim();
+        const category = String(row[C.DEPARTMENT] || '').trim();
+        const status = String(row[C.REPAIR_STATUS] || '').trim();
 
         // Skip empty rows
         if (!assetName) continue;
 
-        // Determine display name and identifier type
-        let displayName, identifierType, identifier;
+        // Determine display name based on department/category
+        let displayName;
+        const dept = category.toLowerCase();
 
-        if (assetId) {
-          // Preference 1: Asset Name + Asset ID
-          displayName = assetName + ' [ID: ' + assetId + ']';
-          identifierType = 'Asset ID';
-          identifier = assetId;
-        } else if (rfid) {
-          // Preference 2: Asset Name + RFID
-          displayName = assetName + ' [RFID: ' + rfid + ']';
-          identifierType = 'RFID';
-          identifier = rfid;
+        if (dept === 'truck' || dept === 'trucks') {
+          // Trucks: Asset Number (Name) - e.g., "301 (2016 Ford F-550)"
+          if (assetNumber) {
+            displayName = assetNumber + ' (' + assetName + ')';
+          } else {
+            displayName = assetName;
+          }
+        } else if (dept === 'trailer' || dept === 'trailers' || dept === 'heavy machine' || dept === 'heavy machines') {
+          // Trailers & Heavy Machines: Just Name - e.g., "Horton Equipment Trailer"
+          displayName = assetName;
         } else {
-          // No identifier
-          displayName = assetName + ' [No ID]';
-          identifierType = 'None';
-          identifier = '';
+          // Everything else: Name (Asset Number) - e.g., "Back Pack Blower (603)"
+          if (assetNumber) {
+            displayName = assetName + ' (' + assetNumber + ')';
+          } else if (rfid) {
+            displayName = assetName + ' (RFID: ' + rfid + ')';
+          } else {
+            displayName = assetName;
+          }
         }
 
         items.push({
-          id: assetId || rfid || 'ROW-' + i,  // Unique identifier for the item
-          name: displayName,                   // Display name with identifier
-          assetName: assetName,                // Raw asset name
-          assetId: assetId,
+          id: assetNumber || rfid || 'ROW-' + i,  // Unique identifier for the item
+          name: displayName,                       // Formatted display name
+          assetName: assetName,                    // Raw asset name
+          assetNumber: assetNumber,
           rfid: rfid,
-          identifierType: identifierType,      // 'Asset ID', 'RFID', or 'None'
-          identifier: identifier,
-          type: category || 'Uncategorized',   // Category for grouping
-          status: status                       // Status from sheet
+          type: category || 'Uncategorized',       // Department for grouping
+          status: status                           // Repair status from sheet
         });
       }
 
