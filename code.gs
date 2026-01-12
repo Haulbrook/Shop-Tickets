@@ -15,7 +15,7 @@
   const EXTERNAL_SHEET_NAME = 'Repairs'; // Sheet name for completed repairs log
 
   // Assets sheet configuration (same spreadsheet as external sheet)
-  const ASSETS_SHEET_NAME = 'Assets'; // Sheet name containing equipment list
+  const ASSETS_SHEET_NAME = 'Master'; // Sheet name containing equipment list
 
   // Full Asset column mapping (0-based) - for getAssetDetails
   const ASSET_DETAIL_COLS = {
