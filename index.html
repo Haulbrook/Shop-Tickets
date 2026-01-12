@@ -579,9 +579,337 @@
             font-size: 0.75rem;
             margin-top: 4px;
         }
+
+        /* ============================================
+           SIDEBAR STYLES
+           ============================================ */
+
+        /* Sidebar Toggle Button */
+        .sidebar-toggle {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            z-index: 1001;
+            width: 44px;
+            height: 44px;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary);
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-toggle:hover {
+            background: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        .sidebar-toggle.active {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+        }
+
+        /* Sidebar Overlay (mobile) */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 999;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+        }
+
+        /* Sidebar Panel */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -320px;
+            width: 320px;
+            height: 100vh;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            transition: left 0.3s ease;
+            overflow: hidden;
+        }
+
+        .sidebar.open {
+            left: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg);
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .sidebar-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .sidebar-close:hover {
+            color: var(--text);
+        }
+
+        /* Sidebar Search */
+        .sidebar-search {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-search .search-wrapper {
+            margin-bottom: 12px;
+        }
+
+        .sidebar-search select {
+            width: 100%;
+            height: 150px;
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-input);
+            color: var(--text);
+            font-size: 0.875rem;
+        }
+
+        .sidebar-search select option {
+            padding: 8px;
+        }
+
+        /* Asset Baseball Card */
+        .asset-card {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .asset-card-empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* Card Header (Always Visible) */
+        .asset-card-header {
+            background: linear-gradient(135deg, var(--primary-dark), #0f4c2a);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid var(--primary);
+        }
+
+        .asset-card-header .asset-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .asset-card-header .asset-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .asset-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-grade {
+            background: var(--warning);
+            color: #000;
+        }
+
+        .badge-status-in {
+            background: var(--primary);
+            color: white;
+        }
+
+        .badge-status-out {
+            background: var(--danger);
+            color: white;
+        }
+
+        .badge-department {
+            background: var(--bg-input);
+            color: var(--text);
+        }
+
+        /* Card Sections (Collapsible) */
+        .asset-section {
+            background: var(--bg);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .asset-section summary {
+            padding: 12px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-input);
+        }
+
+        .asset-section summary:hover {
+            background: var(--border);
+        }
+
+        .asset-section summary::marker {
+            color: var(--primary);
+        }
+
+        .asset-section-content {
+            padding: 12px;
+        }
+
+        /* Stat Rows */
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.8rem;
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+        }
+
+        .stat-value {
+            color: var(--text);
+            font-weight: 500;
+            text-align: right;
+            max-width: 60%;
+            word-break: break-word;
+        }
+
+        .stat-value.empty {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* Cost Warning Indicators */
+        .cost-warning {
+            color: var(--warning);
+        }
+
+        .cost-danger {
+            color: var(--danger);
+        }
+
+        /* Desktop adjustments */
+        @media (min-width: 768px) {
+            .sidebar-toggle.active {
+                left: 336px;
+            }
+
+            .container {
+                transition: margin-left 0.3s ease;
+            }
+
+            body.sidebar-open .container {
+                margin-left: 340px;
+            }
+
+            .sidebar-overlay {
+                display: none !important;
+            }
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 767px) {
+            .sidebar {
+                width: 100%;
+                max-width: 320px;
+            }
+
+            .sidebar-toggle.active {
+                left: 16px;
+            }
+
+            body.sidebar-open {
+                overflow: hidden;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Sidebar Toggle Button -->
+    <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
+        <span class="toggle-icon">&#9776;</span>
+    </button>
+
+    <!-- Sidebar Overlay (for mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <!-- Sidebar Panel -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Asset Lookup</h2>
+            <button class="sidebar-close" onclick="closeSidebar()">&times;</button>
+        </div>
+
+        <div class="sidebar-search">
+            <div class="search-wrapper">
+                <input type="text" id="assetSearch" placeholder="Search assets..." oninput="filterAssetsForSidebar()">
+            </div>
+            <select id="assetSelect" size="6" onchange="selectAssetForCard()">
+                <option value="" disabled selected>Select an asset...</option>
+            </select>
+        </div>
+
+        <div class="asset-card" id="assetCard">
+            <!-- Baseball card content populated dynamically -->
+            <div class="asset-card-empty">
+                <p>Select an asset to view details</p>
+            </div>
+        </div>
+    </aside>
+
     <div class="container">
         <header>
             <h1>Shop Repair Tickets</h1>
@@ -723,7 +1051,7 @@
         // CONFIGURATION
         // ============================================
         // Default to Branches V1 API URL
-        const DEFAULT_API = 'https://script.google.com/macros/s/AKfycbxWHqo7-YySZyMKrGTQMcnhhEtg4s_p57o5XhP-9tmxU8aSEBDvQ1CKq1l52I1Te6MneQ/exec';
+        const DEFAULT_API = 'https://script.google.com/macros/s/AKfycbw-XBD_UBLKmnxzL1KZgzCqXSHqeZd9FtJGYWz6Len7PiHP2xhLCexVnGore4bVW_cT/exec';
         let API_URL = localStorage.getItem('shopTicketsApiUrl') || DEFAULT_API;
         let fleetItems = [];
 
@@ -1191,6 +1519,249 @@
             document.body.appendChild(toast);
 
             setTimeout(() => toast.remove(), 3000);
+        }
+
+        // ============================================
+        // SIDEBAR FUNCTIONS
+        // ============================================
+        let sidebarOpen = false;
+        let selectedAsset = null;
+
+        function toggleSidebar() {
+            sidebarOpen = !sidebarOpen;
+            updateSidebarState();
+            if (sidebarOpen) {
+                loadAssetsForSidebar();
+            }
+        }
+
+        function openSidebar() {
+            sidebarOpen = true;
+            updateSidebarState();
+            loadAssetsForSidebar();
+        }
+
+        function closeSidebar() {
+            sidebarOpen = false;
+            updateSidebarState();
+        }
+
+        function updateSidebarState() {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.getElementById('sidebarToggle');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            if (sidebarOpen) {
+                sidebar.classList.add('open');
+                toggle.classList.add('active');
+                toggle.innerHTML = '<span class="toggle-icon">&times;</span>';
+                overlay.classList.add('show');
+                document.body.classList.add('sidebar-open');
+            } else {
+                sidebar.classList.remove('open');
+                toggle.classList.remove('active');
+                toggle.innerHTML = '<span class="toggle-icon">&#9776;</span>';
+                overlay.classList.remove('show');
+                document.body.classList.remove('sidebar-open');
+            }
+        }
+
+        // ============================================
+        // SIDEBAR ASSET LOADING
+        // ============================================
+        function loadAssetsForSidebar() {
+            // Reuse existing fleetItems
+            if (fleetItems.length > 0) {
+                renderAssetSelectForSidebar();
+            }
+        }
+
+        function renderAssetSelectForSidebar(filter = '') {
+            const select = document.getElementById('assetSelect');
+            const filterLower = filter.toLowerCase();
+
+            const filtered = fleetItems.filter(item =>
+                !filter ||
+                item.name.toLowerCase().includes(filterLower) ||
+                (item.id && item.id.toLowerCase().includes(filterLower))
+            );
+
+            if (filtered.length === 0) {
+                select.innerHTML = '<option value="" disabled>No matching assets</option>';
+                return;
+            }
+
+            let html = '<option value="" disabled selected>Select an asset...</option>';
+            filtered.forEach(item => {
+                html += `<option value="${escapeHtml(item.id)}" data-name="${escapeHtml(item.name)}" data-type="${escapeHtml(item.type)}">${escapeHtml(item.name)}</option>`;
+            });
+
+            select.innerHTML = html;
+        }
+
+        function filterAssetsForSidebar() {
+            const search = document.getElementById('assetSearch').value;
+            renderAssetSelectForSidebar(search);
+        }
+
+        // ============================================
+        // SELECT ASSET & LOAD DETAILS FROM API
+        // ============================================
+        async function selectAssetForCard() {
+            const select = document.getElementById('assetSelect');
+            const selectedOption = select.options[select.selectedIndex];
+
+            if (!selectedOption || !selectedOption.value) return;
+
+            const cardContainer = document.getElementById('assetCard');
+            cardContainer.innerHTML = '<div class="asset-card-empty"><p>Loading...</p></div>';
+
+            try {
+                const result = await callAPI('getAssetDetails', [selectedOption.value]);
+
+                if (result.success && result.response?.success && result.response?.asset) {
+                    selectedAsset = result.response.asset;
+                    renderAssetCard(selectedAsset);
+                } else {
+                    const errorMsg = result.response?.error || 'Error loading asset details';
+                    cardContainer.innerHTML = `<div class="asset-card-empty"><p>${escapeHtml(errorMsg)}</p></div>`;
+                }
+            } catch (error) {
+                console.error('Error loading asset details:', error);
+                cardContainer.innerHTML = '<div class="asset-card-empty"><p>Error loading asset</p></div>';
+            }
+        }
+
+        // ============================================
+        // RENDER ASSET BASEBALL CARD
+        // ============================================
+        function renderAssetCard(asset) {
+            const container = document.getElementById('assetCard');
+
+            // Determine status badge
+            const isInService = asset.inOutService && asset.inOutService.toLowerCase().includes('in');
+            const statusClass = isInService ? 'badge-status-in' : 'badge-status-out';
+            const statusText = asset.inOutService || 'Unknown';
+
+            // Calculate cost warning level
+            const percentReplacement = parseFloat(asset.percentReplacement) || 0;
+            let costClass = '';
+            if (percentReplacement >= 75) costClass = 'cost-danger';
+            else if (percentReplacement >= 50) costClass = 'cost-warning';
+
+            container.innerHTML = `
+                <!-- Header -->
+                <div class="asset-card-header">
+                    <div class="asset-name">${escapeHtml(asset.name)}</div>
+                    <div class="asset-meta">
+                        ${asset.assetNumber ? `<span class="asset-badge badge-department">#${escapeHtml(asset.assetNumber)}</span>` : ''}
+                        ${asset.assetGrade ? `<span class="asset-badge badge-grade">${escapeHtml(asset.assetGrade)}</span>` : ''}
+                        <span class="asset-badge ${statusClass}">${escapeHtml(statusText)}</span>
+                        ${asset.department ? `<span class="asset-badge badge-department">${escapeHtml(asset.department)}</span>` : ''}
+                    </div>
+                </div>
+
+                <!-- Cost Summary -->
+                <details class="asset-section" open>
+                    <summary>Cost Summary</summary>
+                    <div class="asset-section-content">
+                        ${renderStatRow('Replacement Cost', formatCurrency(asset.replacementCost))}
+                        ${renderStatRow('Total Repair Cost', formatCurrency(asset.totalRepairCost))}
+                        ${renderStatRow('% of Replacement', asset.percentReplacement ? `<span class="${costClass}">${asset.percentReplacement}%</span>` : '-')}
+                        ${renderStatRow('Repair Status', asset.repairStatus)}
+                    </div>
+                </details>
+
+                <!-- Equipment Info -->
+                <details class="asset-section" open>
+                    <summary>Equipment Info</summary>
+                    <div class="asset-section-content">
+                        ${renderStatRow('Make', asset.make)}
+                        ${renderStatRow('Year', asset.year)}
+                        ${renderStatRow('Model #', asset.modelNum)}
+                        ${renderStatRow('Engine', asset.engine)}
+                        ${renderStatRow('Fuel Type', asset.fuel)}
+                        ${renderStatRow('Location', asset.location)}
+                        ${renderStatRow('Truck Equip #', asset.truckEquipNum)}
+                        ${renderStatRow('Weight Capacity', asset.weightCapacity)}
+                        ${renderStatRow('Axle', asset.axle)}
+                        ${renderStatRow('Teeth Spec', asset.teethSpec)}
+                    </div>
+                </details>
+
+                <!-- Identity & Tags -->
+                <details class="asset-section">
+                    <summary>Identity & Tags</summary>
+                    <div class="asset-section-content">
+                        ${renderStatRow('Serial/VIN', asset.serialVin)}
+                        ${renderStatRow('RFID', asset.rfid)}
+                        ${renderStatRow('Tag #', asset.tagNum)}
+                        ${renderStatRow('BP Card Last 4', asset.bpCardLast)}
+                        ${renderStatRow('Invisitag Group', asset.invisitagGroup)}
+                        ${renderStatRow('Purchase Date', asset.dateOfPurchase)}
+                    </div>
+                </details>
+
+                <!-- Fluids & Filters -->
+                <details class="asset-section">
+                    <summary>Fluids & Filters</summary>
+                    <div class="asset-section-content">
+                        ${renderStatRow('Oil Type', asset.oilType)}
+                        ${renderStatRow('Oil Capacity', asset.oilCapacity)}
+                        ${renderStatRow('Oil Filter', asset.oilFilter)}
+                        ${renderStatRow('Fuel Filter', asset.fuelFilter)}
+                        ${renderStatRow('Fuel/Water Sep', asset.fuelWaterSep)}
+                        ${renderStatRow('Air Filter', asset.airFilter)}
+                        ${renderStatRow('Outer Air Filter', asset.outerAirFilter)}
+                        ${renderStatRow('CQ Inner A/F', asset.cqInnerAF)}
+                        ${renderStatRow('CQ Outer A/F', asset.cqOuterAF)}
+                        ${renderStatRow('Wix Outer A/F', asset.wixOuterAF)}
+                        ${renderStatRow('Wix Inner A/F', asset.wixInnerAF)}
+                        ${renderStatRow('Hydraulic Fluid', asset.hydraulicFluid)}
+                        ${renderStatRow('Hydraulic Filter 1', asset.hydraulicFilter1)}
+                        ${renderStatRow('Hydraulic Filter 2', asset.hydraulicFilter2)}
+                        ${renderStatRow('Hydraulic Filter 3', asset.hydraulicFilter3)}
+                    </div>
+                </details>
+
+                <!-- Tires & Parts -->
+                <details class="asset-section">
+                    <summary>Tires & Parts</summary>
+                    <div class="asset-section-content">
+                        ${renderStatRow('Front Tire', asset.frontTire)}
+                        ${renderStatRow('Rear Tire', asset.rearTire)}
+                        ${renderStatRow('Wiper', asset.wiper)}
+                        ${renderStatRow('Headlight', asset.headlight)}
+                    </div>
+                </details>
+
+                <!-- Notes -->
+                ${asset.notes ? `
+                <details class="asset-section">
+                    <summary>Notes</summary>
+                    <div class="asset-section-content">
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">${escapeHtml(asset.notes)}</p>
+                    </div>
+                </details>
+                ` : ''}
+            `;
+        }
+
+        function renderStatRow(label, value) {
+            const displayValue = value && value !== '0' && value !== '$0.00' ? value : '-';
+            const emptyClass = displayValue === '-' ? 'empty' : '';
+            return `
+                <div class="stat-row">
+                    <span class="stat-label">${escapeHtml(label)}</span>
+                    <span class="stat-value ${emptyClass}">${displayValue}</span>
+                </div>
+            `;
+        }
+
+        function formatCurrency(value) {
+            const num = parseFloat(value);
+            if (!num || isNaN(num)) return '-';
+            return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
     </script>
 </body>
