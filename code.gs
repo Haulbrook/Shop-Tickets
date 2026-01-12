@@ -7,7 +7,7 @@
 // ============================================
 // CONFIGURATION - UPDATE THIS!
 // ============================================
-const SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID_HERE'; // Replace with your Google Sheet ID
+const SPREADSHEET_ID = '1xyGOcCV5N7jtgJVml6l7OpNdSgMYs1pQ-EjMSgbnWrU'; // Replace with your Google Sheet ID
 const SHEET_NAME = 'Tickets';
 
 // External sheet for repair log (replace with your decision-maker sheet ID)
