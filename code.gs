@@ -14,7 +14,8 @@
   const EXTERNAL_SHEET_ID = '1aF_6nHHp8NA-eETkwZMUuTlPRPOiiKEvou-F9QuVTD8'; // Your decision-maker sheet
   const EXTERNAL_SHEET_NAME = 'Repairs'; // Sheet name for completed repairs log
 
-  // Assets sheet configuration (same spreadsheet as external sheet)
+  // Assets sheet configuration
+  const ASSETS_SHEET_ID = '1AmyIFL74or_Nh0QLMu_n18YosrSP9E4EA6k5MTzlq1Y'; // Asset In/Out list spreadsheet
   const ASSETS_SHEET_NAME = 'Master'; // Sheet name containing equipment list
 
   // Full Asset column mapping (0-based) - for getAssetDetails
@@ -182,7 +183,7 @@
   // ============================================
   function getFleetItemsForRepair() {
     try {
-      const ss = SpreadsheetApp.openById(EXTERNAL_SHEET_ID);
+      const ss = SpreadsheetApp.openById(ASSETS_SHEET_ID);
       const sheet = ss.getSheetByName(ASSETS_SHEET_NAME);
 
       if (!sheet) {
@@ -260,7 +261,7 @@
   // ============================================
   function getAssetDetails(assetIdentifier) {
     try {
-      const ss = SpreadsheetApp.openById(EXTERNAL_SHEET_ID);
+      const ss = SpreadsheetApp.openById(ASSETS_SHEET_ID);
       const sheet = ss.getSheetByName(ASSETS_SHEET_NAME);
 
       if (!sheet) {
