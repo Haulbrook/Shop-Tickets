@@ -1238,10 +1238,10 @@
                     ${ticket.notes ? `<div class="ticket-notes">${escapeHtml(ticket.notes)}</div>` : ''}
                     ${!isCompleted ? `
                         <div class="ticket-actions">
-                            <button class="btn-complete" onclick="completeTicket('${ticket.ticketId}', '${escapeHtml(ticket.assetName || ticket.item || '')}')">
+                            <button class="btn-complete" onclick="completeTicket('${escapeJsString(ticket.ticketId)}', '${escapeJsString(ticket.assetName || ticket.item || '')}')">
                                 Mark Complete
                             </button>
-                            <button class="btn-delete" onclick="deleteTicket('${ticket.ticketId}')">
+                            <button class="btn-delete" onclick="deleteTicket('${escapeJsString(ticket.ticketId)}')">
                                 Delete
                             </button>
                         </div>
@@ -1497,6 +1497,14 @@
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        }
+
+        function escapeJsString(text) {
+            if (!text) return '';
+            return String(text)
+                .replace(/\\/g, '\\\\')
+                .replace(/'/g, "\\'")
+                .replace(/"/g, '\\"');
         }
 
         function formatTime(isoString) {

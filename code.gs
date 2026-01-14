@@ -537,7 +537,7 @@
     // ============================================
   // PUSH TO EXTERNAL SHEET (Repairs tab)
   // ============================================
-  // Columns: Repair ID, Asset ID, Asset Name, Repair Date, Part Name, Part Cost ($),
+  // Columns: Asset Name, Asset ID, Repair ID, Repair Date, Part Name, Part Cost ($),
   //          Labor Hours, Labor Rate ($/hr), Labor Cost ($), Total Repair Cost ($),
   //          Running Total ($), % of Replacement, Days Since Last Repair, Notes
   function pushToExternalSheet(ticketRow, repairDetails, repairDate, completedTime) {
@@ -554,20 +554,38 @@
       const repairId = 'REP-' + Utilities.formatDate(completedTime, Session.getScriptTimeZone(), 'yyyyMMdd-HHmmss');
 
       // Get asset info
-      const assetName = repairDetails.assetName || String(ticketRow[COLS.ITEM] || '');
+      const rawAssetName = repairDetails.assetName || String(ticketRow[COLS.ITEM] || '');
 
-      // Extract asset ID from the asset name if it contains [ID: xxx]
+      // Extract asset ID and clean asset name based on format
       let assetId = '';
-      const idMatch = assetName.match(/\[ID:\s*([^\]]+)\]/);
-      const rfidMatch = assetName.match(/\[RFID:\s*([^\]]+)\]/);
+      let cleanAssetName = rawAssetName;
+
+      // Try old format: [ID: xxx] or [RFID: xxx]
+      const idMatch = rawAssetName.match(/\[ID:\s*([^\]]+)\]/);
+      const rfidMatch = rawAssetName.match(/\[RFID:\s*([^\]]+)\]/);
+
       if (idMatch) {
         assetId = idMatch[1].trim();
+        cleanAssetName = rawAssetName.replace(/\s*\[(ID|RFID|No ID):[^\]]*\]/g, '').trim();
       } else if (rfidMatch) {
         assetId = rfidMatch[1].trim();
-      }
+        cleanAssetName = rawAssetName.replace(/\s*\[(ID|RFID|No ID):[^\]]*\]/g, '').trim();
+      } else {
+        // Try new display name formats
+        // Truck format: "301 (2016 Ford F-550)" - asset number at start, name in parentheses
+        const truckMatch = rawAssetName.match(/^(\d+)\s*\((.+)\)$/);
+        // Equipment format: "Back Pack Blower (603)" - name first, asset number in parentheses at end
+        const equipMatch = rawAssetName.match(/^(.+?)\s*\((\d+)\)$/);
 
-      // Clean asset name (remove the [ID: xxx] part)
-      const cleanAssetName = assetName.replace(/\s*\[(ID|RFID|No ID):[^\]]*\]/g, '').trim();
+        if (truckMatch) {
+          assetId = truckMatch[1];
+          cleanAssetName = truckMatch[2].trim();
+        } else if (equipMatch) {
+          assetId = equipMatch[2];
+          cleanAssetName = equipMatch[1].trim();
+        }
+        // If no pattern matches, cleanAssetName stays as rawAssetName and assetId stays empty
+      }
 
       // Parse part cost from part details if $ amount included
       let partCost = 0;
@@ -594,9 +612,9 @@
 
       // Append to Repairs sheet
       extSheet.appendRow([
-        repairId,           // A - Repair ID
+        cleanAssetName,     // A - Asset Name (must be first for Decision page aggregation)
         assetId,            // B - Asset ID
-        cleanAssetName,     // C - Asset Name
+        repairId,           // C - Repair ID
         repairDate,         // D - Repair Date
         partName,           // E - Part Name
         partCost,           // F - Part Cost ($)
