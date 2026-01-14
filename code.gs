@@ -71,7 +71,7 @@
   const COLS = {
     TICKET_ID: 0,       // A
     CREATED: 1,         // B
-    ITEM: 2,            // C
+    ITEM: 2,            // C - Combined display name
     ASSIGNED_TO: 3,     // D
     NOTES: 4,           // E
     STATUS: 5,          // F
@@ -84,7 +84,8 @@
     LABOR_RATE_TYPE: 12,// M - Standard or Emergency
     LABOR_RATE: 13,     // N - Rate per hour ($80 or $150)
     TOTAL_LABOR: 14,    // O - Total labor cost
-    ADD_NOTES: 15       // P - Additional notes
+    ADD_NOTES: 15,      // P - Additional notes
+    ASSET_ID: 16        // Q - Raw Asset ID (for export)
   };
 
   // ============================================
@@ -450,15 +451,25 @@
       const now = new Date();
       const ticketId = 'TKT-' + Utilities.formatDate(now, Session.getScriptTimeZone(), 'yyyyMMdd-HHmmss');
 
-      // Append new row
+      // Append new row (columns A through Q)
       sheet.appendRow([
-        ticketId,
-        now,
-        String(data.item || '').trim(),
-        String(data.assignedTo || '').trim(),
-        String(data.notes || '').trim(),
-        'OPEN',
-        ''
+        ticketId,                              // A - Ticket ID
+        now,                                   // B - Created
+        String(data.item || '').trim(),        // C - Item (combined display name)
+        String(data.assignedTo || '').trim(),  // D - Assigned To
+        String(data.notes || '').trim(),       // E - Notes
+        'OPEN',                                // F - Status
+        '',                                    // G - Completed
+        '',                                    // H - Repair Date
+        '',                                    // I - Part Used
+        '',                                    // J - Part Details
+        '',                                    // K - Task Description
+        '',                                    // L - Labor Hours
+        '',                                    // M - Labor Rate Type
+        '',                                    // N - Labor Rate
+        '',                                    // O - Total Labor Cost
+        '',                                    // P - Additional Notes
+        String(data.assetId || '').trim()      // Q - Raw Asset ID (for export)
       ]);
 
       return {
@@ -553,39 +564,29 @@
       // Generate Repair ID: REP-YYYYMMDD-HHMMSS
       const repairId = 'REP-' + Utilities.formatDate(completedTime, Session.getScriptTimeZone(), 'yyyyMMdd-HHmmss');
 
-      // Get asset info
-      const rawAssetName = repairDetails.assetName || String(ticketRow[COLS.ITEM] || '');
+      // Get Asset ID directly from stored column Q (no extraction needed!)
+      const assetId = String(ticketRow[COLS.ASSET_ID] || '').trim();
 
-      // Extract asset ID and clean asset name based on format
-      let assetId = '';
-      let cleanAssetName = rawAssetName;
+      // Get display name and extract clean Asset Name
+      const displayName = repairDetails.assetName || String(ticketRow[COLS.ITEM] || '');
+      let cleanAssetName = displayName;
 
-      // Try old format: [ID: xxx] or [RFID: xxx]
-      const idMatch = rawAssetName.match(/\[ID:\s*([^\]]+)\]/);
-      const rfidMatch = rawAssetName.match(/\[RFID:\s*([^\]]+)\]/);
+      // Extract clean Asset Name from display name formats
+      // Truck format: "301 (2016 Ford F-550)" - asset number at start, name in parentheses
+      const truckMatch = displayName.match(/^(\d+)\s*\((.+)\)$/);
+      // Equipment format: "Back Pack Blower (603)" - name first, asset number in parentheses at end
+      const equipMatch = displayName.match(/^(.+?)\s*\((\d+)\)$/);
+      // Old format: [ID: xxx] or [RFID: xxx]
+      const bracketMatch = displayName.match(/^(.+?)\s*\[(ID|RFID|No ID):[^\]]*\]$/);
 
-      if (idMatch) {
-        assetId = idMatch[1].trim();
-        cleanAssetName = rawAssetName.replace(/\s*\[(ID|RFID|No ID):[^\]]*\]/g, '').trim();
-      } else if (rfidMatch) {
-        assetId = rfidMatch[1].trim();
-        cleanAssetName = rawAssetName.replace(/\s*\[(ID|RFID|No ID):[^\]]*\]/g, '').trim();
-      } else {
-        // Try new display name formats
-        // Truck format: "301 (2016 Ford F-550)" - asset number at start, name in parentheses
-        const truckMatch = rawAssetName.match(/^(\d+)\s*\((.+)\)$/);
-        // Equipment format: "Back Pack Blower (603)" - name first, asset number in parentheses at end
-        const equipMatch = rawAssetName.match(/^(.+?)\s*\((\d+)\)$/);
-
-        if (truckMatch) {
-          assetId = truckMatch[1];
-          cleanAssetName = truckMatch[2].trim();
-        } else if (equipMatch) {
-          assetId = equipMatch[2];
-          cleanAssetName = equipMatch[1].trim();
-        }
-        // If no pattern matches, cleanAssetName stays as rawAssetName and assetId stays empty
+      if (truckMatch) {
+        cleanAssetName = truckMatch[2].trim();
+      } else if (equipMatch) {
+        cleanAssetName = equipMatch[1].trim();
+      } else if (bracketMatch) {
+        cleanAssetName = bracketMatch[1].trim();
       }
+      // If no pattern matches, cleanAssetName stays as displayName
 
       // Parse part cost from part details if $ amount included
       let partCost = 0;
@@ -684,7 +685,7 @@
     }
 
     // Set headers (including new completion detail columns)
-    sheet.getRange(1, 1, 1, 16).setValues([[
+    sheet.getRange(1, 1, 1, 17).setValues([[
       'Ticket ID',      // A
       'Created',        // B
       'Item',           // C
@@ -700,11 +701,12 @@
       'Labor Rate Type',// M
       'Labor Rate',     // N
       'Total Labor Cost', // O
-      'Additional Notes'  // P
+      'Additional Notes', // P
+      'Asset ID'        // Q - Raw Asset ID for export
     ]]);
 
     // Format header row
-    sheet.getRange(1, 1, 1, 16)
+    sheet.getRange(1, 1, 1, 17)
       .setFontWeight('bold')
       .setBackground('#4a4a4a')
       .setFontColor('#ffffff');
@@ -726,6 +728,7 @@
     sheet.setColumnWidth(14, 100); // Labor Rate
     sheet.setColumnWidth(15, 120); // Total Labor Cost
     sheet.setColumnWidth(16, 250); // Additional Notes
+    sheet.setColumnWidth(17, 100); // Asset ID
 
     // Freeze header row
     sheet.setFrozenRows(1);
