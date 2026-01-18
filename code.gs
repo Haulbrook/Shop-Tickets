@@ -548,9 +548,10 @@
     // ============================================
   // PUSH TO EXTERNAL SHEET (Repairs tab)
   // ============================================
-  // Columns: Asset Name, Asset ID, Repair ID, Repair Date, Part Name, Part Cost ($),
-  //          Labor Hours, Labor Rate ($/hr), Labor Cost ($), Total Repair Cost ($),
-  //          Running Total ($), % of Replacement, Days Since Last Repair, Notes
+  // Standard column order (per data interchange spec):
+  // A: REPAIR_ID, B: ASSET_ID, C: ASSET_NAME, D: REPAIR_DATE, E: PART_NAME, F: PART_COST,
+  // G: LABOR_HOURS, H: LABOR_RATE, I: LABOR_COST, J: TOTAL_COST,
+  // K: RUNNING_TOTAL, L: PCT_OF_REPLACEMENT, M: DAYS_SINCE_LAST, N: NOTES
   function pushToExternalSheet(ticketRow, repairDetails, repairDate, completedTime) {
     try {
       const extSS = SpreadsheetApp.openById(EXTERNAL_SHEET_ID);
@@ -561,8 +562,9 @@
         return false;
       }
 
-      // Generate Repair ID: REP-YYYYMMDD-HHMMSS
-      const repairId = 'REP-' + Utilities.formatDate(completedTime, Session.getScriptTimeZone(), 'yyyyMMdd-HHmmss');
+      // Generate Repair ID: SHOP-YYYYMMDDHHmmss-NNN (per data interchange standard)
+      const timestamp = Utilities.formatDate(completedTime, Session.getScriptTimeZone(), 'yyyyMMddHHmmss');
+      const repairId = generateUniqueRepairId(extSheet, timestamp);
 
       // Get Asset ID directly from stored column Q (no extraction needed!)
       const assetId = String(ticketRow[COLS.ASSET_ID] || '').trim();
@@ -611,22 +613,22 @@
         ticketRow[COLS.NOTES] ? 'Original Issue: ' + String(ticketRow[COLS.NOTES]) : ''
       ].filter(n => n).join(' | ');
 
-      // Append to Repairs sheet
+      // Append to Repairs sheet (Standard column order per data interchange spec)
       extSheet.appendRow([
-        cleanAssetName,     // A - Asset Name (must be first for Decision page aggregation)
-        assetId,            // B - Asset ID
-        repairId,           // C - Repair ID
-        repairDate,         // D - Repair Date
-        partName,           // E - Part Name
-        partCost,           // F - Part Cost ($)
-        laborHours,         // G - Labor Hours
-        laborRate,          // H - Labor Rate ($/hr)
-        laborCost,          // I - Labor Cost ($)
-        totalRepairCost,    // J - Total Repair Cost ($)
-        '',                 // K - Running Total ($) - for your formula
-        '',                 // L - % of Replacement - for your formula
-        '',                 // M - Days Since Last Repair - for your formula
-        combinedNotes       // N - Notes
+        repairId,           // A - REPAIR_ID
+        assetId,            // B - ASSET_ID
+        cleanAssetName,     // C - ASSET_NAME
+        repairDate,         // D - REPAIR_DATE
+        partName,           // E - PART_NAME
+        partCost,           // F - PART_COST
+        laborHours,         // G - LABOR_HOURS
+        laborRate,          // H - LABOR_RATE
+        laborCost,          // I - LABOR_COST
+        totalRepairCost,    // J - TOTAL_COST
+        '',                 // K - RUNNING_TOTAL (hub calculates)
+        '',                 // L - PCT_OF_REPLACEMENT (hub calculates)
+        '',                 // M - DAYS_SINCE_LAST (hub calculates)
+        combinedNotes       // N - NOTES
       ]);
 
       return true;
@@ -671,6 +673,30 @@
       return value.toISOString();
     }
     return String(value);
+  }
+
+  /**
+   * Generates unique repair ID with sequential counter for same-timestamp duplicates
+   * Format: SHOP-YYYYMMDDHHmmss-NNN (per data interchange standard)
+   */
+  function generateUniqueRepairId(sheet, timestamp) {
+    const prefix = 'SHOP-' + timestamp + '-';
+    const data = sheet.getDataRange().getValues();
+
+    // Find highest counter for this timestamp
+    let maxCounter = 0;
+    for (let i = 1; i < data.length; i++) {
+      const existingId = data[i][0]; // Column A = REPAIR_ID
+      if (existingId && existingId.toString().startsWith(prefix)) {
+        const counter = parseInt(existingId.toString().slice(-3), 10);
+        if (!isNaN(counter) && counter > maxCounter) {
+          maxCounter = counter;
+        }
+      }
+    }
+
+    // Return next sequential ID
+    return prefix + String(maxCounter + 1).padStart(3, '0');
   }
 
   // ============================================
