@@ -147,60 +147,46 @@
         .view-panel { display: none; flex: 1; overflow: auto; }
         .view-panel.active { display: flex; flex-direction: column; }
 
-        /* ============================================ QUEUE VIEW ============================================ */
-        .queue-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(clamp(280px, 22vw, 400px), 1fr));
-            gap: clamp(12px, 1.5vh, 20px);
-            align-content: start;
+        /* ============================================ FLEET OVERVIEW TABLE ============================================ */
+        .fleet-overview {
             flex: 1;
+            overflow: auto;
         }
 
-        .truck-card {
+        .fleet-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .fleet-table thead th {
+            position: sticky;
+            top: 0;
             background: var(--bg-card);
-            border-radius: clamp(10px, 1.2vw, 16px);
-            padding: clamp(16px, 2vh, 24px);
-            border: 1px solid var(--border);
-            border-left: 6px solid var(--primary);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .truck-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-        }
-
-        .truck-card.status-red {
-            border-left-color: var(--danger);
-            box-shadow: 0 0 20px var(--danger-glow);
-        }
-
-        .truck-card.status-yellow {
-            border-left-color: var(--warning);
-        }
-
-        .truck-card.status-green {
-            border-left-color: var(--primary);
-        }
-
-        .truck-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: clamp(10px, 1.2vh, 16px);
-        }
-
-        .truck-name {
-            font-size: clamp(1.1rem, 1.6vw, 1.5rem);
-            font-weight: 900;
-        }
-
-        .truck-asset-num {
-            font-size: clamp(0.75rem, 1vw, 0.9rem);
+            padding: clamp(10px, 1.5vh, 16px) clamp(10px, 1.2vw, 16px);
+            text-align: left;
+            font-size: clamp(0.7rem, 0.95vw, 0.9rem);
             color: var(--text-muted);
-            margin-top: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid var(--border);
+            font-weight: 700;
+            z-index: 2;
+        }
+
+        .fleet-table tbody tr {
+            transition: background 0.2s;
+        }
+
+        .fleet-table tbody tr:hover {
+            background: var(--bg-elevated);
+        }
+
+        .fleet-table td {
+            padding: clamp(10px, 1.5vh, 16px) clamp(10px, 1.2vw, 16px);
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(0.8rem, 1.1vw, 1rem);
+            vertical-align: middle;
         }
 
         .fuel-badge {
@@ -210,6 +196,7 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.05em;
+            display: inline-block;
         }
 
         .fuel-badge.diesel {
@@ -224,102 +211,13 @@
             border: 1px solid rgba(168, 85, 247, 0.3);
         }
 
-        .truck-stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: clamp(10px, 1.2vh, 16px);
-        }
-
-        .truck-stat {
-            background: var(--bg);
-            padding: 8px 12px;
-            border-radius: 8px;
-        }
-
-        .truck-stat-label {
-            font-size: clamp(0.6rem, 0.8vw, 0.75rem);
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .truck-stat-value {
-            font-size: clamp(0.9rem, 1.2vw, 1.1rem);
-            font-weight: 700;
-            margin-top: 2px;
-        }
-
-        /* Progress bar */
-        .mileage-progress {
-            margin-bottom: clamp(8px, 1vh, 12px);
-        }
-
-        .progress-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
-        }
-
-        .progress-label {
-            font-size: clamp(0.7rem, 0.9vw, 0.85rem);
-            color: var(--text-muted);
-        }
-
-        .progress-miles {
-            font-size: clamp(0.75rem, 1vw, 0.9rem);
-            font-weight: 700;
-        }
-
-        .progress-miles.red { color: var(--danger); }
-        .progress-miles.yellow { color: var(--warning); }
-        .progress-miles.green { color: var(--primary); }
-
-        .progress-bar {
-            height: 8px;
-            background: var(--bg);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            border-radius: 4px;
-            transition: width 1s ease;
-        }
-
-        .progress-fill.red {
-            background: linear-gradient(90deg, var(--danger), #dc2626);
-            box-shadow: 0 0 8px var(--danger-glow);
-        }
-
-        .progress-fill.yellow {
-            background: linear-gradient(90deg, #f59e0b, var(--warning));
-        }
-
-        .progress-fill.green {
-            background: linear-gradient(90deg, #16a34a, var(--primary));
-        }
-
-        .truck-card-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: clamp(8px, 1vh, 12px);
-            border-top: 1px solid var(--border);
-        }
-
-        .last-service {
-            font-size: clamp(0.65rem, 0.85vw, 0.8rem);
-            color: var(--text-muted);
-        }
-
         .status-badge {
             padding: 4px 12px;
             border-radius: 20px;
             font-size: clamp(0.65rem, 0.85vw, 0.8rem);
             font-weight: 700;
+            white-space: nowrap;
+            display: inline-block;
         }
 
         .status-badge.overdue {
@@ -343,182 +241,13 @@
             50% { opacity: 0.6; }
         }
 
-        /* ============================================ CATCH-UP VIEW ============================================ */
-        .catchup-container {
-            flex: 1;
-            overflow: auto;
-        }
-
-        .catchup-week {
-            margin-bottom: clamp(16px, 2vh, 24px);
-        }
-
-        .week-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: clamp(8px, 1vh, 14px);
-            padding-bottom: 8px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .week-label {
-            font-size: clamp(1rem, 1.4vw, 1.3rem);
-            font-weight: 800;
-            color: var(--primary);
-        }
-
-        .week-label.current {
-            color: var(--warning);
-        }
-
-        .week-dates {
-            font-size: clamp(0.75rem, 1vw, 0.9rem);
-            color: var(--text-muted);
-        }
-
-        .week-badge {
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: clamp(0.65rem, 0.8vw, 0.75rem);
+        .progress-miles {
             font-weight: 700;
-            background: rgba(34, 197, 94, 0.1);
-            color: var(--primary);
-            border: 1px solid rgba(34, 197, 94, 0.2);
         }
 
-        .week-badge.active {
-            background: rgba(251, 191, 36, 0.15);
-            color: var(--warning);
-            border-color: rgba(251, 191, 36, 0.3);
-            animation: pulse-red 2s ease-in-out infinite;
-        }
-
-        .week-trucks {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(clamp(260px, 20vw, 380px), 1fr));
-            gap: clamp(10px, 1.2vh, 16px);
-        }
-
-        .catchup-card {
-            background: var(--bg-card);
-            border-radius: 12px;
-            padding: clamp(14px, 1.8vh, 20px);
-            border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: clamp(12px, 1.5vw, 20px);
-            transition: all 0.2s;
-        }
-
-        .catchup-card:hover {
-            border-color: var(--text-muted);
-        }
-
-        .catchup-card.completed {
-            opacity: 0.5;
-            border-left: 4px solid var(--primary);
-        }
-
-        .catchup-card.scheduled {
-            border-left: 4px solid var(--warning);
-        }
-
-        .catchup-card.upcoming {
-            border-left: 4px solid var(--border);
-        }
-
-        .catchup-order {
-            width: clamp(36px, 4vw, 48px);
-            height: clamp(36px, 4vw, 48px);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            font-size: clamp(0.9rem, 1.2vw, 1.1rem);
-            flex-shrink: 0;
-        }
-
-        .catchup-card.completed .catchup-order {
-            background: rgba(34, 197, 94, 0.15);
-            color: var(--primary);
-        }
-
-        .catchup-card.scheduled .catchup-order {
-            background: rgba(251, 191, 36, 0.15);
-            color: var(--warning);
-        }
-
-        .catchup-card.upcoming .catchup-order {
-            background: rgba(139, 148, 158, 0.15);
-            color: var(--text-muted);
-        }
-
-        .catchup-info {
-            flex: 1;
-        }
-
-        .catchup-truck-name {
-            font-weight: 800;
-            font-size: clamp(0.95rem, 1.3vw, 1.15rem);
-        }
-
-        .catchup-details {
-            font-size: clamp(0.7rem, 0.9vw, 0.85rem);
-            color: var(--text-muted);
-            margin-top: 3px;
-        }
-
-        .catchup-status {
-            font-size: clamp(0.65rem, 0.85vw, 0.8rem);
-            font-weight: 600;
-        }
-
-        .catchup-status.done { color: var(--primary); }
-        .catchup-status.now { color: var(--warning); }
-        .catchup-status.later { color: var(--text-muted); }
-
-        /* ============================================ FLEET OVERVIEW ============================================ */
-        .fleet-overview {
-            flex: 1;
-            overflow: auto;
-        }
-
-        .fleet-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-        }
-
-        .fleet-table thead th {
-            position: sticky;
-            top: 0;
-            background: var(--bg-card);
-            padding: clamp(10px, 1.5vh, 16px) clamp(12px, 1.5vw, 20px);
-            text-align: left;
-            font-size: clamp(0.7rem, 0.95vw, 0.9rem);
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border-bottom: 2px solid var(--border);
-            font-weight: 700;
-            z-index: 2;
-        }
-
-        .fleet-table tbody tr {
-            transition: background 0.2s;
-        }
-
-        .fleet-table tbody tr:hover {
-            background: var(--bg-elevated);
-        }
-
-        .fleet-table td {
-            padding: clamp(10px, 1.5vh, 16px) clamp(12px, 1.5vw, 20px);
-            border-bottom: 1px solid var(--border);
-            font-size: clamp(0.8rem, 1.1vw, 1rem);
-        }
+        .progress-miles.red { color: var(--danger); }
+        .progress-miles.yellow { color: var(--warning); }
+        .progress-miles.green { color: var(--primary); }
 
         .mini-bar {
             width: 100px;
@@ -536,71 +265,221 @@
             border-radius: 3px;
         }
 
-        /* ============================================ ODOMETER UPDATE PREVIEW ============================================ */
-        .odo-update-section {
-            background: var(--bg-card);
-            border-radius: 16px;
-            padding: clamp(20px, 3vh, 32px);
-            border: 1px solid var(--border);
-            margin-top: 2vh;
+        .progress-fill.red {
+            background: linear-gradient(90deg, var(--danger), #dc2626);
+            box-shadow: 0 0 8px var(--danger-glow);
         }
 
-        .odo-update-section h3 {
-            font-size: clamp(1rem, 1.4vw, 1.3rem);
-            font-weight: 800;
-            margin-bottom: clamp(12px, 1.5vh, 20px);
+        .progress-fill.yellow {
+            background: linear-gradient(90deg, #f59e0b, var(--warning));
+        }
+
+        .progress-fill.green {
+            background: linear-gradient(90deg, #16a34a, var(--primary));
+        }
+
+        /* ============================================ INLINE UPDATE BUTTON ============================================ */
+        .btn-update {
+            padding: 6px 16px;
+            background: var(--bg-elevated);
             color: var(--text-muted);
-        }
-
-        .odo-form-row {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            padding: 12px 16px;
-            background: var(--bg);
-            border-radius: 10px;
-            margin-bottom: 8px;
-        }
-
-        .odo-form-row .truck-label {
-            font-weight: 700;
-            min-width: 200px;
-            font-size: clamp(0.9rem, 1.2vw, 1.05rem);
-        }
-
-        .odo-input {
-            padding: 10px 14px;
             border: 1px solid var(--border);
             border-radius: 8px;
-            background: var(--bg-elevated);
-            color: var(--text);
-            font-size: clamp(0.9rem, 1.2vw, 1.05rem);
-            width: 140px;
-            text-align: right;
-            font-weight: 600;
+            font-size: clamp(0.75rem, 0.9vw, 0.85rem);
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
         }
 
-        .odo-input:focus {
-            outline: none;
+        .btn-update:hover {
+            background: var(--primary-dark);
+            color: var(--text);
             border-color: var(--primary);
         }
 
-        .odo-unit {
-            color: var(--text-muted);
-            font-size: clamp(0.75rem, 0.9vw, 0.85rem);
+        /* Inline edit mode */
+        .odo-inline-edit {
+            display: none;
+            align-items: center;
+            gap: 6px;
         }
 
-        .odo-save-btn {
-            padding: 10px 20px;
+        .odo-inline-edit.active {
+            display: inline-flex;
+        }
+
+        .odo-inline-input {
+            width: 110px;
+            padding: 6px 10px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            background: var(--bg);
+            color: var(--text);
+            font-size: clamp(0.85rem, 1.1vw, 1rem);
+            font-weight: 700;
+            text-align: right;
+            outline: none;
+        }
+
+        .odo-inline-input:focus {
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        .btn-save-inline {
+            padding: 6px 12px;
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: clamp(0.75rem, 0.9vw, 0.85rem);
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-save-inline:hover {
+            box-shadow: 0 0 12px var(--primary-glow);
+        }
+
+        .btn-cancel-inline {
+            padding: 6px 10px;
+            background: none;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: clamp(0.75rem, 0.9vw, 0.85rem);
+            cursor: pointer;
+        }
+
+        .odo-display { font-weight: 700; }
+
+        .odo-cell-content.editing .odo-display,
+        .odo-cell-content.editing .btn-update { display: none; }
+
+        .odo-cell-content.editing .odo-inline-edit { display: inline-flex; }
+
+        /* ============================================ MONDAY MILEAGE TAB ============================================ */
+        .monday-container {
+            flex: 1;
+            overflow: auto;
+        }
+
+        .monday-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: clamp(16px, 2vh, 24px);
+            padding: clamp(16px, 2vh, 24px);
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .monday-header-icon {
+            font-size: clamp(2rem, 4vh, 3rem);
+        }
+
+        .monday-header-text h2 {
+            font-size: clamp(1.1rem, 1.6vw, 1.4rem);
+            font-weight: 800;
+        }
+
+        .monday-header-text p {
+            font-size: clamp(0.75rem, 1vw, 0.9rem);
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .monday-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: var(--bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .monday-table thead th {
+            background: var(--bg-elevated);
+            padding: clamp(10px, 1.5vh, 16px) clamp(12px, 1.5vw, 20px);
+            text-align: left;
+            font-size: clamp(0.7rem, 0.95vw, 0.9rem);
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 700;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .monday-table td {
+            padding: clamp(12px, 1.5vh, 18px) clamp(12px, 1.5vw, 20px);
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(0.85rem, 1.1vw, 1rem);
+            vertical-align: middle;
+        }
+
+        .monday-table tbody tr:hover {
+            background: var(--bg-elevated);
+        }
+
+        .monday-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .monday-odo-input {
+            width: 130px;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg);
+            color: var(--text);
+            font-size: clamp(0.9rem, 1.2vw, 1.05rem);
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .monday-odo-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        .monday-save-row {
+            padding: 6px 16px;
             background: linear-gradient(135deg, var(--primary-dark), var(--primary));
             color: white;
             border: none;
             border-radius: 8px;
             font-weight: 700;
-            font-size: clamp(0.8rem, 1vw, 0.95rem);
+            font-size: clamp(0.75rem, 0.9vw, 0.85rem);
             cursor: pointer;
-            margin-left: auto;
+            transition: all 0.2s;
         }
+
+        .monday-save-row:hover {
+            box-shadow: 0 0 12px var(--primary-glow);
+        }
+
+        .monday-save-row.saved {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--primary);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            cursor: default;
+        }
+
+        .monday-prev-odo {
+            color: var(--text-muted);
+            font-size: clamp(0.75rem, 0.9vw, 0.85rem);
+        }
+
+        .monday-delta {
+            font-weight: 700;
+            font-size: clamp(0.8rem, 1vw, 0.95rem);
+        }
+
+        .monday-delta.positive { color: var(--primary); }
+        .monday-delta.zero { color: var(--text-muted); }
 
         /* ============================================ SCROLLBAR ============================================ */
         * {
@@ -647,15 +526,15 @@
             </div>
             <div class="header-stats">
                 <div class="header-stat">
-                    <div class="stat-value red" id="overdueCount">3</div>
+                    <div class="stat-value red" id="overdueCount">0</div>
                     <div class="stat-label">Overdue</div>
                 </div>
                 <div class="header-stat">
-                    <div class="stat-value yellow" id="dueSoonCount">4</div>
+                    <div class="stat-value yellow" id="dueSoonCount">0</div>
                     <div class="stat-label">Due Soon</div>
                 </div>
                 <div class="header-stat">
-                    <div class="stat-value green" id="goodCount">8</div>
+                    <div class="stat-value green" id="goodCount">0</div>
                     <div class="stat-label">Good</div>
                 </div>
             </div>
@@ -665,26 +544,14 @@
         <div class="main-content">
             <!-- View Tabs -->
             <div class="view-tabs">
-                <div class="view-tab active" onclick="switchView('queue')">Mechanic Queue</div>
-                <div class="view-tab" onclick="switchView('catchup')">Catch-Up Plan</div>
-                <div class="view-tab" onclick="switchView('fleet')">Fleet Overview</div>
-                <div class="view-tab" onclick="switchView('odometer')">Update Odometer</div>
-            </div>
-
-            <!-- ==================== MECHANIC QUEUE VIEW ==================== -->
-            <div class="view-panel active" id="view-queue">
-                <div class="queue-grid" id="queueGrid"></div>
-            </div>
-
-            <!-- ==================== CATCH-UP PLAN VIEW ==================== -->
-            <div class="view-panel" id="view-catchup">
-                <div class="catchup-container" id="catchupContainer"></div>
+                <div class="view-tab active" onclick="switchView(this, 'fleet')">Fleet Overview</div>
+                <div class="view-tab" onclick="switchView(this, 'monday')">Monday Mileage</div>
             </div>
 
             <!-- ==================== FLEET OVERVIEW VIEW ==================== -->
-            <div class="view-panel" id="view-fleet">
+            <div class="view-panel active" id="view-fleet">
                 <div class="fleet-overview">
-                    <table class="fleet-table" id="fleetTable">
+                    <table class="fleet-table">
                         <thead>
                             <tr>
                                 <th>Truck</th>
@@ -695,6 +562,7 @@
                                 <th>Miles Remaining</th>
                                 <th>Status</th>
                                 <th>Next Due (Est.)</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody id="fleetBody"></tbody>
@@ -702,11 +570,29 @@
                 </div>
             </div>
 
-            <!-- ==================== ODOMETER UPDATE VIEW ==================== -->
-            <div class="view-panel" id="view-odometer">
-                <div class="odo-update-section">
-                    <h3>Weekly Odometer Update - Crew Leaders</h3>
-                    <div id="odoForms"></div>
+            <!-- ==================== MONDAY MILEAGE VIEW ==================== -->
+            <div class="view-panel" id="view-monday">
+                <div class="monday-container">
+                    <div class="monday-header">
+                        <div class="monday-header-icon">📋</div>
+                        <div class="monday-header-text">
+                            <h2>Monday Mileage Check-In</h2>
+                            <p>Enter odometer readings from the weekly clipboard. Updates maintenance schedule automatically.</p>
+                        </div>
+                    </div>
+                    <table class="monday-table">
+                        <thead>
+                            <tr>
+                                <th>Truck</th>
+                                <th>Fuel</th>
+                                <th>Previous Reading</th>
+                                <th>New Reading</th>
+                                <th>Miles This Week</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="mondayBody"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -715,31 +601,23 @@
     <script>
         // ============================================
         // MOCK FLEET DATA
-        // Realistic truck fleet with staggered mileage
         // ============================================
         const TRUCKS = [
-            // Install Trucks (Diesel) - 8,000 mi intervals
-            { id: '301', name: '2016 Ford F-550',      fuel: 'diesel', group: 'install truck',      odo: 87432,  lastServiceOdo: 80100,  lastServiceDate: '2025-11-15' },
-            { id: '302', name: '2017 Ford F-550',      fuel: 'diesel', group: 'install truck',      odo: 92100,  lastServiceOdo: 85000,  lastServiceDate: '2025-12-02' },
-            { id: '303', name: '2018 Ford F-450',      fuel: 'diesel', group: 'install truck',      odo: 64200,  lastServiceOdo: 61800,  lastServiceDate: '2026-01-10' },
-            { id: '304', name: '2019 Ford F-550',      fuel: 'diesel', group: 'install truck',      odo: 71850,  lastServiceOdo: 64000,  lastServiceDate: '2025-10-20' },
-            { id: '305', name: '2020 Ford F-550',      fuel: 'diesel', group: 'install truck',      odo: 53200,  lastServiceOdo: 48500,  lastServiceDate: '2025-12-18' },
-            { id: '306', name: '2021 Ford F-450',      fuel: 'diesel', group: 'install truck',      odo: 38700,  lastServiceOdo: 35000,  lastServiceDate: '2026-01-05' },
-
-            // Maintenance Trucks (Gas) - 5,000 mi intervals
-            { id: '401', name: '2018 Ford F-150',      fuel: 'gas',    group: 'maintenance truck',  odo: 78500,  lastServiceOdo: 74200,  lastServiceDate: '2025-12-10' },
-            { id: '402', name: '2019 Ford F-250',      fuel: 'gas',    group: 'maintenance truck',  odo: 65300,  lastServiceOdo: 63000,  lastServiceDate: '2026-01-08' },
-            { id: '403', name: '2020 Chevy 2500',      fuel: 'gas',    group: 'maintenance truck',  odo: 51200,  lastServiceOdo: 46500,  lastServiceDate: '2025-11-22' },
-            { id: '404', name: '2017 Ford F-150',      fuel: 'gas',    group: 'maintenance truck',  odo: 95800,  lastServiceOdo: 95000,  lastServiceDate: '2026-01-28' },
-
-            // Office Trucks (Gas) - 5,000 mi intervals
-            { id: '501', name: '2021 Toyota Tacoma',   fuel: 'gas',    group: 'office truck',       odo: 32100,  lastServiceOdo: 28500,  lastServiceDate: '2025-12-20' },
-            { id: '502', name: '2022 Ford Ranger',     fuel: 'gas',    group: 'office truck',       odo: 24600,  lastServiceOdo: 22000,  lastServiceDate: '2026-01-15' },
-
-            // More diesel trucks
-            { id: '307', name: '2015 Ford F-550',      fuel: 'diesel', group: 'install truck',      odo: 112400, lastServiceOdo: 104500, lastServiceDate: '2025-09-30' },
-            { id: '308', name: '2022 Ford F-600',      fuel: 'diesel', group: 'install truck',      odo: 28300,  lastServiceOdo: 25000,  lastServiceDate: '2026-01-20' },
-            { id: '405', name: '2019 Chevy 1500',      fuel: 'gas',    group: 'maintenance truck',  odo: 71200,  lastServiceOdo: 67000,  lastServiceDate: '2025-12-05' },
+            { id: '301', name: '2016 Ford F-550',    fuel: 'diesel', group: 'Install Truck',     odo: 87432,  lastServiceOdo: 80100,  lastServiceDate: '2025-11-15' },
+            { id: '302', name: '2017 Ford F-550',    fuel: 'diesel', group: 'Install Truck',     odo: 92100,  lastServiceOdo: 85000,  lastServiceDate: '2025-12-02' },
+            { id: '303', name: '2018 Ford F-450',    fuel: 'diesel', group: 'Install Truck',     odo: 64200,  lastServiceOdo: 61800,  lastServiceDate: '2026-01-10' },
+            { id: '304', name: '2019 Ford F-550',    fuel: 'diesel', group: 'Install Truck',     odo: 71850,  lastServiceOdo: 64000,  lastServiceDate: '2025-10-20' },
+            { id: '305', name: '2020 Ford F-550',    fuel: 'diesel', group: 'Install Truck',     odo: 53200,  lastServiceOdo: 48500,  lastServiceDate: '2025-12-18' },
+            { id: '306', name: '2021 Ford F-450',    fuel: 'diesel', group: 'Install Truck',     odo: 38700,  lastServiceOdo: 35000,  lastServiceDate: '2026-01-05' },
+            { id: '307', name: '2015 Ford F-550',    fuel: 'diesel', group: 'Install Truck',     odo: 112400, lastServiceOdo: 104500, lastServiceDate: '2025-09-30' },
+            { id: '308', name: '2022 Ford F-600',    fuel: 'diesel', group: 'Install Truck',     odo: 28300,  lastServiceOdo: 25000,  lastServiceDate: '2026-01-20' },
+            { id: '401', name: '2018 Ford F-150',    fuel: 'gas',    group: 'Maintenance Truck', odo: 78500,  lastServiceOdo: 74200,  lastServiceDate: '2025-12-10' },
+            { id: '402', name: '2019 Ford F-250',    fuel: 'gas',    group: 'Maintenance Truck', odo: 65300,  lastServiceOdo: 63000,  lastServiceDate: '2026-01-08' },
+            { id: '403', name: '2020 Chevy 2500',    fuel: 'gas',    group: 'Maintenance Truck', odo: 51200,  lastServiceOdo: 46500,  lastServiceDate: '2025-11-22' },
+            { id: '404', name: '2017 Ford F-150',    fuel: 'gas',    group: 'Maintenance Truck', odo: 95800,  lastServiceOdo: 95000,  lastServiceDate: '2026-01-28' },
+            { id: '405', name: '2019 Chevy 1500',    fuel: 'gas',    group: 'Maintenance Truck', odo: 71200,  lastServiceOdo: 67000,  lastServiceDate: '2025-12-05' },
+            { id: '501', name: '2021 Toyota Tacoma', fuel: 'gas',    group: 'Office Truck',      odo: 32100,  lastServiceOdo: 28500,  lastServiceDate: '2025-12-20' },
+            { id: '502', name: '2022 Ford Ranger',   fuel: 'gas',    group: 'Office Truck',      odo: 24600,  lastServiceOdo: 22000,  lastServiceDate: '2026-01-15' },
         ];
 
         // ============================================
@@ -754,164 +632,23 @@
             let status, statusLabel, color;
             if (milesRemaining <= 0) {
                 status = 'overdue';
-                statusLabel = `${Math.abs(milesRemaining).toLocaleString()} mi OVERDUE`;
+                statusLabel = Math.abs(milesRemaining).toLocaleString() + ' mi OVERDUE';
                 color = 'red';
             } else if (milesRemaining <= interval * 0.25) {
                 status = 'due-soon';
-                statusLabel = `${milesRemaining.toLocaleString()} mi remaining`;
+                statusLabel = milesRemaining.toLocaleString() + ' mi remaining';
                 color = 'yellow';
             } else {
                 status = 'good';
-                statusLabel = `${milesRemaining.toLocaleString()} mi remaining`;
+                statusLabel = milesRemaining.toLocaleString() + ' mi remaining';
                 color = 'green';
             }
 
-            // Estimate next due date based on ~400 mi/week average
             const weeksUntilDue = Math.max(0, milesRemaining / 400);
             const nextDueDate = new Date();
             nextDueDate.setDate(nextDueDate.getDate() + (weeksUntilDue * 7));
 
-            return {
-                interval,
-                milesSinceService,
-                milesRemaining,
-                percentUsed: Math.min(percentUsed, 100),
-                status,
-                statusLabel,
-                color,
-                nextDueDate,
-                weeksUntilDue
-            };
-        }
-
-        // ============================================
-        // RENDER MECHANIC QUEUE
-        // ============================================
-        function renderQueue() {
-            const grid = document.getElementById('queueGrid');
-            const trucksWithStatus = TRUCKS.map(t => ({ ...t, calc: calculateStatus(t) }));
-
-            // Sort: overdue first, then due-soon, then by miles remaining
-            trucksWithStatus.sort((a, b) => {
-                const order = { 'overdue': 0, 'due-soon': 1, 'good': 2 };
-                if (order[a.calc.status] !== order[b.calc.status]) {
-                    return order[a.calc.status] - order[b.calc.status];
-                }
-                return a.calc.milesRemaining - b.calc.milesRemaining;
-            });
-
-            // Update header counts
-            let overdue = 0, dueSoon = 0, good = 0;
-            trucksWithStatus.forEach(t => {
-                if (t.calc.status === 'overdue') overdue++;
-                else if (t.calc.status === 'due-soon') dueSoon++;
-                else good++;
-            });
-            document.getElementById('overdueCount').textContent = overdue;
-            document.getElementById('dueSoonCount').textContent = dueSoon;
-            document.getElementById('goodCount').textContent = good;
-
-            grid.innerHTML = trucksWithStatus.map(t => `
-                <div class="truck-card status-${t.calc.color}">
-                    <div class="truck-card-header">
-                        <div>
-                            <div class="truck-name">${t.id} (${t.name})</div>
-                            <div class="truck-asset-num">${t.group.replace(/\b\w/g, l => l.toUpperCase())}</div>
-                        </div>
-                        <span class="fuel-badge ${t.fuel}">${t.fuel}</span>
-                    </div>
-
-                    <div class="truck-stats">
-                        <div class="truck-stat">
-                            <div class="truck-stat-label">Odometer</div>
-                            <div class="truck-stat-value">${t.odo.toLocaleString()}</div>
-                        </div>
-                        <div class="truck-stat">
-                            <div class="truck-stat-label">Since Service</div>
-                            <div class="truck-stat-value">${t.calc.milesSinceService.toLocaleString()} mi</div>
-                        </div>
-                    </div>
-
-                    <div class="mileage-progress">
-                        <div class="progress-header">
-                            <span class="progress-label">Service interval: ${t.calc.interval.toLocaleString()} mi</span>
-                            <span class="progress-miles ${t.calc.color}">${t.calc.statusLabel}</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill ${t.calc.color}" style="width: ${t.calc.percentUsed}%"></div>
-                        </div>
-                    </div>
-
-                    <div class="truck-card-footer">
-                        <span class="last-service">Last service: ${formatDate(t.lastServiceDate)}</span>
-                        <span class="status-badge ${t.calc.status}">${t.calc.status === 'overdue' ? 'OVERDUE' : t.calc.status === 'due-soon' ? 'DUE SOON' : 'GOOD'}</span>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // ============================================
-        // RENDER CATCH-UP PLAN
-        // ============================================
-        function renderCatchup() {
-            const container = document.getElementById('catchupContainer');
-            const trucksWithStatus = TRUCKS.map(t => ({ ...t, calc: calculateStatus(t) }));
-
-            // Sort by urgency (most overdue first)
-            trucksWithStatus.sort((a, b) => a.calc.milesRemaining - b.calc.milesRemaining);
-
-            // Assign 2 trucks per week
-            const trucksPerWeek = 2;
-            const weeks = [];
-            for (let i = 0; i < trucksWithStatus.length; i += trucksPerWeek) {
-                weeks.push(trucksWithStatus.slice(i, i + trucksPerWeek));
-            }
-
-            const today = new Date();
-            const startOfWeek = new Date(today);
-            startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Monday
-
-            container.innerHTML = weeks.map((weekTrucks, weekIndex) => {
-                const weekStart = new Date(startOfWeek);
-                weekStart.setDate(weekStart.getDate() + (weekIndex * 7));
-                const weekEnd = new Date(weekStart);
-                weekEnd.setDate(weekEnd.getDate() + 4); // Friday
-
-                const isCurrent = weekIndex === 0;
-                const isPast = false; // In real system, compare dates
-                const weekLabel = isCurrent ? 'This Week' : weekIndex === 1 ? 'Next Week' : `Week ${weekIndex + 1}`;
-
-                return `
-                    <div class="catchup-week">
-                        <div class="week-header">
-                            <span class="week-label ${isCurrent ? 'current' : ''}">${weekLabel}</span>
-                            <span class="week-dates">${formatShortDate(weekStart)} - ${formatShortDate(weekEnd)}</span>
-                            <span class="week-badge ${isCurrent ? 'active' : ''}">${weekTrucks.length} truck${weekTrucks.length > 1 ? 's' : ''}</span>
-                        </div>
-                        <div class="week-trucks">
-                            ${weekTrucks.map((t, i) => {
-                                const globalIndex = weekIndex * trucksPerWeek + i + 1;
-                                const cardClass = isCurrent ? 'scheduled' : weekIndex < 0 ? 'completed' : 'upcoming';
-                                const statusClass = isCurrent ? 'now' : weekIndex < 0 ? 'done' : 'later';
-                                const statusText = isCurrent ? 'SCHEDULED' : weekIndex < 0 ? 'DONE' : 'UPCOMING';
-                                return `
-                                    <div class="catchup-card ${cardClass}">
-                                        <div class="catchup-order">${globalIndex}</div>
-                                        <div class="catchup-info">
-                                            <div class="catchup-truck-name">${t.id} (${t.name})</div>
-                                            <div class="catchup-details">
-                                                ${t.fuel.toUpperCase()} - ${t.calc.interval.toLocaleString()} mi interval
-                                                &bull; ${t.calc.milesRemaining <= 0 ? Math.abs(t.calc.milesRemaining).toLocaleString() + ' mi overdue' : t.calc.milesRemaining.toLocaleString() + ' mi remaining'}
-                                            </div>
-                                        </div>
-                                        <span class="catchup-status ${statusClass}">${statusText}</span>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
-                    </div>
-                `;
-            }).join('');
+            return { interval, milesSinceService, milesRemaining, percentUsed: Math.min(percentUsed, 100), status, statusLabel, color, nextDueDate };
         }
 
         // ============================================
@@ -922,53 +659,160 @@
             const trucksWithStatus = TRUCKS.map(t => ({ ...t, calc: calculateStatus(t) }));
             trucksWithStatus.sort((a, b) => a.calc.milesRemaining - b.calc.milesRemaining);
 
-            body.innerHTML = trucksWithStatus.map(t => `
+            let overdue = 0, dueSoon = 0, good = 0;
+            trucksWithStatus.forEach(t => {
+                if (t.calc.status === 'overdue') overdue++;
+                else if (t.calc.status === 'due-soon') dueSoon++;
+                else good++;
+            });
+            document.getElementById('overdueCount').textContent = overdue;
+            document.getElementById('dueSoonCount').textContent = dueSoon;
+            document.getElementById('goodCount').textContent = good;
+
+            body.innerHTML = trucksWithStatus.map(t => {
+                const truckIndex = TRUCKS.findIndex(tr => tr.id === t.id);
+                return `
                 <tr>
-                    <td style="font-weight: 800;">${t.id} (${t.name})</td>
-                    <td><span class="fuel-badge ${t.fuel}" style="font-size: 0.75rem;">${t.fuel.toUpperCase()}</span></td>
-                    <td>${t.calc.interval.toLocaleString()} mi</td>
-                    <td style="font-weight: 700;">${t.odo.toLocaleString()}</td>
-                    <td>${formatDate(t.lastServiceDate)}<br><span style="color: var(--text-muted); font-size: 0.8em;">@ ${t.lastServiceOdo.toLocaleString()} mi</span></td>
                     <td>
-                        <span class="progress-miles ${t.calc.color}" style="font-weight: 700;">
-                            ${t.calc.milesRemaining <= 0 ? '-' + Math.abs(t.calc.milesRemaining).toLocaleString() : t.calc.milesRemaining.toLocaleString()} mi
-                        </span>
-                        <div class="mini-bar">
-                            <div class="mini-fill progress-fill ${t.calc.color}" style="width: ${t.calc.percentUsed}%"></div>
+                        <div style="font-weight: 800;">${t.id} (${t.name})</div>
+                        <div style="font-size: 0.8em; color: var(--text-muted);">${t.group}</div>
+                    </td>
+                    <td><span class="fuel-badge ${t.fuel}">${t.fuel.toUpperCase()}</span></td>
+                    <td>${t.calc.interval.toLocaleString()} mi</td>
+                    <td>
+                        <div class="odo-cell-content" id="odo-cell-${truckIndex}">
+                            <span class="odo-display">${t.odo.toLocaleString()}</span>
+                            <div class="odo-inline-edit">
+                                <input type="number" class="odo-inline-input" id="odo-input-${truckIndex}" value="${t.odo}">
+                                <button class="btn-save-inline" onclick="saveOdo(${truckIndex})">Save</button>
+                                <button class="btn-cancel-inline" onclick="cancelOdo(${truckIndex})">X</button>
+                            </div>
                         </div>
                     </td>
-                    <td><span class="status-badge ${t.calc.status}" style="white-space: nowrap;">${t.calc.status === 'overdue' ? 'OVERDUE' : t.calc.status === 'due-soon' ? 'DUE SOON' : 'GOOD'}</span></td>
+                    <td>
+                        ${formatDate(t.lastServiceDate)}<br>
+                        <span style="color: var(--text-muted); font-size: 0.8em;">@ ${t.lastServiceOdo.toLocaleString()} mi</span>
+                    </td>
+                    <td>
+                        <span class="progress-miles ${t.calc.color}">${t.calc.milesRemaining <= 0 ? '-' + Math.abs(t.calc.milesRemaining).toLocaleString() : t.calc.milesRemaining.toLocaleString()} mi</span>
+                        <div class="mini-bar"><div class="mini-fill progress-fill ${t.calc.color}" style="width: ${t.calc.percentUsed}%"></div></div>
+                    </td>
+                    <td><span class="status-badge ${t.calc.status}">${t.calc.status === 'overdue' ? 'OVERDUE' : t.calc.status === 'due-soon' ? 'DUE SOON' : 'GOOD'}</span></td>
                     <td style="color: var(--text-muted);">${t.calc.status === 'overdue' ? 'NOW' : formatShortDate(t.calc.nextDueDate)}</td>
+                    <td><button class="btn-update" onclick="startOdoEdit(${truckIndex})">Update</button></td>
                 </tr>
-            `).join('');
+                `;
+            }).join('');
         }
 
         // ============================================
-        // RENDER ODOMETER FORMS
+        // INLINE ODOMETER EDIT
         // ============================================
-        function renderOdoForms() {
-            const container = document.getElementById('odoForms');
+        function startOdoEdit(index) {
+            // Close any other open edits
+            document.querySelectorAll('.odo-cell-content.editing').forEach(el => el.classList.remove('editing'));
+
+            const cell = document.getElementById('odo-cell-' + index);
+            cell.classList.add('editing');
+            const input = document.getElementById('odo-input-' + index);
+            input.value = TRUCKS[index].odo;
+            input.focus();
+            input.select();
+        }
+
+        function cancelOdo(index) {
+            document.getElementById('odo-cell-' + index).classList.remove('editing');
+        }
+
+        function saveOdo(index) {
+            const input = document.getElementById('odo-input-' + index);
+            const newOdo = parseInt(input.value);
+            if (isNaN(newOdo) || newOdo < TRUCKS[index].odo) {
+                input.style.borderColor = 'var(--danger)';
+                return;
+            }
+            TRUCKS[index].odo = newOdo;
+            renderFleet();
+            renderMonday();
+        }
+
+        // ============================================
+        // RENDER MONDAY MILEAGE
+        // ============================================
+        function renderMonday() {
+            const body = document.getElementById('mondayBody');
             const sorted = [...TRUCKS].sort((a, b) => a.id.localeCompare(b.id));
 
-            container.innerHTML = sorted.map(t => `
-                <div class="odo-form-row">
-                    <span class="truck-label">${t.id} - ${t.name}</span>
-                    <span class="fuel-badge ${t.fuel}" style="font-size: 0.7rem;">${t.fuel}</span>
-                    <input type="number" class="odo-input" placeholder="${t.odo.toLocaleString()}" value="${t.odo}">
-                    <span class="odo-unit">miles</span>
-                    <button class="odo-save-btn">Save</button>
-                </div>
-            `).join('');
+            body.innerHTML = sorted.map((t, i) => {
+                return `
+                <tr>
+                    <td>
+                        <div style="font-weight: 800;">${t.id} (${t.name})</div>
+                        <div style="font-size: 0.8em; color: var(--text-muted);">${t.group}</div>
+                    </td>
+                    <td><span class="fuel-badge ${t.fuel}" style="font-size: 0.7rem;">${t.fuel.toUpperCase()}</span></td>
+                    <td class="monday-prev-odo">${t.odo.toLocaleString()} mi</td>
+                    <td><input type="number" class="monday-odo-input" id="monday-input-${t.id}" placeholder="${t.odo.toLocaleString()}" oninput="updateDelta('${t.id}', ${t.odo})"></td>
+                    <td><span class="monday-delta zero" id="monday-delta-${t.id}">--</span></td>
+                    <td><button class="monday-save-row" id="monday-save-${t.id}" onclick="saveMondayReading('${t.id}')">Save</button></td>
+                </tr>
+                `;
+            }).join('');
+        }
+
+        function updateDelta(truckId, prevOdo) {
+            const input = document.getElementById('monday-input-' + truckId);
+            const delta = document.getElementById('monday-delta-' + truckId);
+            const newVal = parseInt(input.value);
+
+            if (isNaN(newVal) || newVal <= 0) {
+                delta.textContent = '--';
+                delta.className = 'monday-delta zero';
+                return;
+            }
+
+            const diff = newVal - prevOdo;
+            if (diff > 0) {
+                delta.textContent = '+' + diff.toLocaleString() + ' mi';
+                delta.className = 'monday-delta positive';
+            } else if (diff === 0) {
+                delta.textContent = '0 mi';
+                delta.className = 'monday-delta zero';
+            } else {
+                delta.textContent = diff.toLocaleString() + ' mi';
+                delta.className = 'monday-delta zero';
+                input.style.borderColor = 'var(--danger)';
+                return;
+            }
+            input.style.borderColor = 'var(--border)';
+        }
+
+        function saveMondayReading(truckId) {
+            const input = document.getElementById('monday-input-' + truckId);
+            const btn = document.getElementById('monday-save-' + truckId);
+            const newVal = parseInt(input.value);
+            const truck = TRUCKS.find(t => t.id === truckId);
+
+            if (isNaN(newVal) || newVal < truck.odo) return;
+
+            truck.odo = newVal;
+            btn.textContent = 'Saved';
+            btn.classList.add('saved');
+            input.disabled = true;
+            input.style.borderColor = 'var(--primary)';
+            input.style.opacity = '0.6';
+
+            // Refresh fleet view counts
+            renderFleet();
         }
 
         // ============================================
         // VIEW SWITCHING
         // ============================================
-        function switchView(view) {
+        function switchView(tabEl, view) {
             document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
-
-            event.target.classList.add('active');
+            tabEl.classList.add('active');
             document.getElementById('view-' + view).classList.add('active');
         }
 
@@ -988,10 +832,8 @@
         // ============================================
         // INIT
         // ============================================
-        renderQueue();
-        renderCatchup();
         renderFleet();
-        renderOdoForms();
+        renderMonday();
     </script>
 </body>
 </html>
