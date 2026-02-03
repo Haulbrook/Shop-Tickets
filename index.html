@@ -2312,10 +2312,15 @@
             saveBtn.disabled = true;
 
             try {
-                await callAPI('updateOdometer', [{
+                const result = await callAPI('updateOdometer', [{
                     assetId: truck.assetId,
                     odometer: newOdo
                 }]);
+
+                // Check the inner response for actual success
+                if (result.response && !result.response.success) {
+                    throw new Error(result.response.error || 'Save failed');
+                }
 
                 // Update local data and re-render
                 fleetTrucks[index].currentOdo = newOdo;
