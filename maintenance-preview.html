@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maintenance Schedule - Preview</title>
+    <title>Shop Repair Tickets</title>
     <style>
         * {
             margin: 0;
@@ -21,6 +21,7 @@
             --warning-glow: rgba(251, 191, 36, 0.3);
             --bg: #0d1117;
             --bg-card: #161b22;
+            --bg-input: #21262d;
             --bg-elevated: #1c2128;
             --text: #f0f6fc;
             --text-muted: #8b949e;
@@ -30,148 +31,301 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
-            font-weight: 500;
+            padding: 16px;
         }
 
-        /* ============================================ LAYOUT ============================================ */
-        .dashboard {
-            display: grid;
-            grid-template-rows: auto 1fr;
-            min-height: 100vh;
-            padding: 1.5vh 1.5vw;
-            gap: 1.5vh;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
-        /* ============================================ HEADER ============================================ */
-        .header {
+        /* ============================================ HEADER (matches existing site) ============================================ */
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        /* ============================================ SIDEBAR TOGGLE (matches existing) ============================================ */
+        .sidebar-toggle {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            z-index: 1001;
+            width: 44px;
+            height: 44px;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary);
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            background: linear-gradient(135deg, #1e3a5f 0%, #0f2744 100%);
-            padding: 1.5vh 2vw;
-            border-radius: clamp(8px, 1vw, 16px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 20px rgba(59, 130, 246, 0.2);
-            border: 1px solid rgba(59, 130, 246, 0.2);
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
         }
 
-        .header-left {
+        .sidebar-toggle:hover {
+            background: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        /* ============================================ TAB NAV ============================================ */
+        .tab-nav {
             display: flex;
-            align-items: center;
-            gap: clamp(12px, 1.5vw, 24px);
+            gap: 4px;
+            margin-bottom: 24px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 4px;
+            border: 1px solid var(--border);
         }
 
-        .logo {
-            font-size: clamp(2rem, 5vh, 3.5rem);
-            filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.5));
+        .tab-btn {
+            flex: 1;
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
-        .header-title h1 {
-            font-size: clamp(1.2rem, 2.5vw, 2.2rem);
-            font-weight: 800;
-            letter-spacing: -0.02em;
+        .tab-btn:hover {
+            color: var(--text);
+            background: var(--bg-elevated);
         }
 
-        .header-title p {
-            font-size: clamp(0.7rem, 1.2vw, 1rem);
-            opacity: 0.85;
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* ============================================ TAB 1: SHOP REPAIR TICKETS (matches existing) ============================================ */
+        .tickets-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+        }
+
+        .form-card h2 {
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 0.875rem;
             color: var(--text-muted);
         }
 
-        .header-stats {
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-input);
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-group select {
+            height: 180px;
+        }
+
+        .form-group select option {
+            padding: 10px 12px;
+        }
+
+        .form-group select optgroup {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 8px 0 4px;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .tickets-section {
+            margin-bottom: 24px;
+        }
+
+        .tickets-section h2 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
             display: flex;
-            gap: clamp(16px, 2vw, 32px);
+            align-items: center;
+            gap: 8px;
         }
 
-        .header-stat {
-            text-align: center;
-            padding: 0.8vh 1.5vw;
-            background: rgba(0,0,0,0.3);
+        .ticket-count {
+            background: var(--primary);
+            color: white;
+            padding: 2px 10px;
             border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.08);
+            font-size: 0.8rem;
+            font-weight: 700;
         }
 
-        .header-stat .stat-value {
-            font-size: clamp(1.5rem, 3vw, 2.5rem);
+        .mock-ticket {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--warning);
+        }
+
+        .mock-ticket-item {
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .mock-ticket-assigned {
+            font-size: 0.85rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .mock-ticket-notes {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ============================================ TAB 2: FLEET OVERVIEW ============================================ */
+        .fleet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .fleet-header h2 {
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .fleet-stats {
+            display: flex;
+            gap: 12px;
+        }
+
+        .fleet-stat {
+            text-align: center;
+            padding: 8px 16px;
+            background: var(--bg-card);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .fleet-stat .stat-value {
+            font-size: 1.5rem;
             font-weight: 900;
             line-height: 1;
         }
 
-        .header-stat .stat-label {
-            font-size: clamp(0.6rem, 0.9vw, 0.85rem);
+        .fleet-stat .stat-label {
+            font-size: 0.7rem;
             color: var(--text-muted);
-            margin-top: 4px;
+            margin-top: 2px;
         }
 
         .stat-value.red { color: var(--danger); }
         .stat-value.yellow { color: var(--warning); }
         .stat-value.green { color: var(--primary); }
 
-        /* ============================================ VIEW TABS ============================================ */
-        .view-tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 1.5vh;
-        }
-
-        .view-tab {
-            padding: clamp(8px, 1vh, 14px) clamp(16px, 2vw, 28px);
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            color: var(--text-muted);
-            font-size: clamp(0.8rem, 1.1vw, 1rem);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .view-tab:hover { border-color: var(--text-muted); }
-
-        .view-tab.active {
-            background: linear-gradient(135deg, var(--primary-dark), #0f4c2a);
-            border-color: var(--primary);
-            color: var(--text);
-        }
-
-        /* ============================================ MAIN CONTENT ============================================ */
-        .main-content {
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .view-panel { display: none; flex: 1; overflow: auto; }
-        .view-panel.active { display: flex; flex-direction: column; }
-
-        /* ============================================ FLEET OVERVIEW TABLE ============================================ */
         .fleet-overview {
-            flex: 1;
-            overflow: auto;
+            overflow-x: auto;
         }
 
         .fleet-table {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
+            background: var(--bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
         }
 
         .fleet-table thead th {
             position: sticky;
             top: 0;
-            background: var(--bg-card);
-            padding: clamp(10px, 1.5vh, 16px) clamp(10px, 1.2vw, 16px);
+            background: var(--bg-elevated);
+            padding: 12px 14px;
             text-align: left;
-            font-size: clamp(0.7rem, 0.95vw, 0.9rem);
+            font-size: 0.8rem;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.05em;
             border-bottom: 2px solid var(--border);
             font-weight: 700;
-            z-index: 2;
+            white-space: nowrap;
         }
 
         .fleet-table tbody tr {
@@ -183,16 +337,20 @@
         }
 
         .fleet-table td {
-            padding: clamp(10px, 1.5vh, 16px) clamp(10px, 1.2vw, 16px);
+            padding: 12px 14px;
             border-bottom: 1px solid var(--border);
-            font-size: clamp(0.8rem, 1.1vw, 1rem);
+            font-size: 0.9rem;
             vertical-align: middle;
         }
 
+        .fleet-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
         .fuel-badge {
-            padding: 4px 12px;
+            padding: 3px 10px;
             border-radius: 20px;
-            font-size: clamp(0.65rem, 0.85vw, 0.8rem);
+            font-size: 0.7rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.05em;
@@ -212,9 +370,9 @@
         }
 
         .status-badge {
-            padding: 4px 12px;
+            padding: 3px 10px;
             border-radius: 20px;
-            font-size: clamp(0.65rem, 0.85vw, 0.8rem);
+            font-size: 0.7rem;
             font-weight: 700;
             white-space: nowrap;
             display: inline-block;
@@ -241,33 +399,27 @@
             50% { opacity: 0.6; }
         }
 
-        .progress-miles {
-            font-weight: 700;
-        }
-
+        .progress-miles { font-weight: 700; }
         .progress-miles.red { color: var(--danger); }
         .progress-miles.yellow { color: var(--warning); }
         .progress-miles.green { color: var(--primary); }
 
         .mini-bar {
-            width: 100px;
-            height: 6px;
+            width: 80px;
+            height: 5px;
             background: var(--bg);
             border-radius: 3px;
             overflow: hidden;
             display: inline-block;
             vertical-align: middle;
-            margin-left: 8px;
+            margin-left: 6px;
         }
 
-        .mini-fill {
-            height: 100%;
-            border-radius: 3px;
-        }
+        .mini-fill { height: 100%; border-radius: 3px; }
 
         .progress-fill.red {
             background: linear-gradient(90deg, var(--danger), #dc2626);
-            box-shadow: 0 0 8px var(--danger-glow);
+            box-shadow: 0 0 6px var(--danger-glow);
         }
 
         .progress-fill.yellow {
@@ -278,15 +430,15 @@
             background: linear-gradient(90deg, #16a34a, var(--primary));
         }
 
-        /* ============================================ INLINE UPDATE BUTTON ============================================ */
+        /* ============================================ INLINE UPDATE ============================================ */
         .btn-update {
-            padding: 6px 16px;
-            background: var(--bg-elevated);
+            padding: 5px 14px;
+            background: var(--bg-input);
             color: var(--text-muted);
             border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: clamp(0.75rem, 0.9vw, 0.85rem);
-            font-weight: 700;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
             white-space: nowrap;
@@ -298,25 +450,20 @@
             border-color: var(--primary);
         }
 
-        /* Inline edit mode */
         .odo-inline-edit {
             display: none;
             align-items: center;
-            gap: 6px;
-        }
-
-        .odo-inline-edit.active {
-            display: inline-flex;
+            gap: 5px;
         }
 
         .odo-inline-input {
-            width: 110px;
-            padding: 6px 10px;
+            width: 100px;
+            padding: 5px 8px;
             border: 2px solid var(--primary);
-            border-radius: 8px;
+            border-radius: 6px;
             background: var(--bg);
             color: var(--text);
-            font-size: clamp(0.85rem, 1.1vw, 1rem);
+            font-size: 0.85rem;
             font-weight: 700;
             text-align: right;
             outline: none;
@@ -327,27 +474,23 @@
         }
 
         .btn-save-inline {
-            padding: 6px 12px;
+            padding: 5px 10px;
             background: linear-gradient(135deg, var(--primary-dark), var(--primary));
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: clamp(0.75rem, 0.9vw, 0.85rem);
+            border-radius: 6px;
+            font-size: 0.75rem;
             font-weight: 700;
             cursor: pointer;
         }
 
-        .btn-save-inline:hover {
-            box-shadow: 0 0 12px var(--primary-glow);
-        }
-
         .btn-cancel-inline {
-            padding: 6px 10px;
+            padding: 5px 8px;
             background: none;
             color: var(--text-muted);
             border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: clamp(0.75rem, 0.9vw, 0.85rem);
+            border-radius: 6px;
+            font-size: 0.75rem;
             cursor: pointer;
         }
 
@@ -355,141 +498,7 @@
 
         .odo-cell-content.editing .odo-display,
         .odo-cell-content.editing .btn-update { display: none; }
-
         .odo-cell-content.editing .odo-inline-edit { display: inline-flex; }
-
-        /* ============================================ MONDAY MILEAGE TAB ============================================ */
-        .monday-container {
-            flex: 1;
-            overflow: auto;
-        }
-
-        .monday-header {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: clamp(16px, 2vh, 24px);
-            padding: clamp(16px, 2vh, 24px);
-            background: var(--bg-card);
-            border-radius: 12px;
-            border: 1px solid var(--border);
-        }
-
-        .monday-header-icon {
-            font-size: clamp(2rem, 4vh, 3rem);
-        }
-
-        .monday-header-text h2 {
-            font-size: clamp(1.1rem, 1.6vw, 1.4rem);
-            font-weight: 800;
-        }
-
-        .monday-header-text p {
-            font-size: clamp(0.75rem, 1vw, 0.9rem);
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-
-        .monday-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            background: var(--bg-card);
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid var(--border);
-        }
-
-        .monday-table thead th {
-            background: var(--bg-elevated);
-            padding: clamp(10px, 1.5vh, 16px) clamp(12px, 1.5vw, 20px);
-            text-align: left;
-            font-size: clamp(0.7rem, 0.95vw, 0.9rem);
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-weight: 700;
-            border-bottom: 2px solid var(--border);
-        }
-
-        .monday-table td {
-            padding: clamp(12px, 1.5vh, 18px) clamp(12px, 1.5vw, 20px);
-            border-bottom: 1px solid var(--border);
-            font-size: clamp(0.85rem, 1.1vw, 1rem);
-            vertical-align: middle;
-        }
-
-        .monday-table tbody tr:hover {
-            background: var(--bg-elevated);
-        }
-
-        .monday-table tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        .monday-odo-input {
-            width: 130px;
-            padding: 8px 12px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: var(--bg);
-            color: var(--text);
-            font-size: clamp(0.9rem, 1.2vw, 1.05rem);
-            font-weight: 600;
-            text-align: right;
-        }
-
-        .monday-odo-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px var(--primary-glow);
-        }
-
-        .monday-save-row {
-            padding: 6px 16px;
-            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: clamp(0.75rem, 0.9vw, 0.85rem);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .monday-save-row:hover {
-            box-shadow: 0 0 12px var(--primary-glow);
-        }
-
-        .monday-save-row.saved {
-            background: rgba(34, 197, 94, 0.15);
-            color: var(--primary);
-            border: 1px solid rgba(34, 197, 94, 0.3);
-            cursor: default;
-        }
-
-        .monday-prev-odo {
-            color: var(--text-muted);
-            font-size: clamp(0.75rem, 0.9vw, 0.85rem);
-        }
-
-        .monday-delta {
-            font-weight: 700;
-            font-size: clamp(0.8rem, 1vw, 0.95rem);
-        }
-
-        .monday-delta.positive { color: var(--primary); }
-        .monday-delta.zero { color: var(--text-muted); }
-
-        /* ============================================ SCROLLBAR ============================================ */
-        * {
-            scrollbar-width: thin;
-            scrollbar-color: var(--border) transparent;
-        }
-
-        *::-webkit-scrollbar { width: 6px; }
-        *::-webkit-scrollbar-track { background: transparent; }
-        *::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
         /* ============================================ PREVIEW BANNER ============================================ */
         .preview-banner {
@@ -501,104 +510,158 @@
             color: white;
             text-align: center;
             padding: 6px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 700;
             letter-spacing: 0.1em;
             text-transform: uppercase;
             z-index: 9999;
         }
 
-        .dashboard { padding-top: calc(30px + 1.5vh); }
+        body { padding-top: 40px; }
+
+        /* ============================================ SCROLLBAR ============================================ */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+        *::-webkit-scrollbar { width: 6px; }
+        *::-webkit-scrollbar-track { background: transparent; }
+        *::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
     </style>
 </head>
 <body>
-    <div class="preview-banner">PREVIEW - Maintenance Schedule Concept</div>
+    <div class="preview-banner">PREVIEW - Maintenance Schedule Integration Concept</div>
 
-    <div class="dashboard">
-        <!-- Header -->
-        <div class="header">
-            <div class="header-left">
-                <div class="logo">🛠️</div>
-                <div class="header-title">
-                    <h1>Truck Maintenance Schedule</h1>
-                    <p>Routine service tracking - Diesel 8,000 mi / Gas 5,000 mi</p>
+    <!-- Hamburger (matches existing site) -->
+    <button class="sidebar-toggle">&#9776;</button>
+
+    <div class="container">
+        <header>
+            <h1>Shop Repair Tickets</h1>
+            <p>Submit and manage repair requests</p>
+        </header>
+
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab(this, 'tickets')">Shop Repair Tickets</button>
+            <button class="tab-btn" onclick="switchTab(this, 'fleet')">Fleet Overview</button>
+        </div>
+
+        <!-- ==================== TAB 1: SHOP REPAIR TICKETS ==================== -->
+        <div class="tab-panel active" id="tab-tickets">
+            <div class="tickets-container">
+                <!-- New Ticket Form (matches existing) -->
+                <div class="form-card">
+                    <h2>New Ticket</h2>
+                    <div class="form-group">
+                        <label>Search Equipment *</label>
+                        <input type="text" placeholder="Type to search...">
+                        <select size="6">
+                            <optgroup label="Enhancements">
+                                <option>2024 Isuzu NPR XD (901)</option>
+                            </optgroup>
+                            <optgroup label="Install">
+                                <option>2002 Ford SRW Super duty truck (311)</option>
+                                <option>2003 Ford F-550 Dump truck 7.3 wood side (302)</option>
+                                <option>2005 F-550 Dump Truck 6.0 wood side (303)</option>
+                                <option>2005 Ford F-350 (308)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Truck / Crew Leader</label>
+                        <input type="text" placeholder="e.g., 302, Chase">
+                    </div>
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea placeholder="Describe the issue..."></textarea>
+                    </div>
+                    <button class="btn-primary">Create Ticket</button>
                 </div>
-            </div>
-            <div class="header-stats">
-                <div class="header-stat">
-                    <div class="stat-value red" id="overdueCount">0</div>
-                    <div class="stat-label">Overdue</div>
+
+                <!-- Open Tickets -->
+                <div class="tickets-section">
+                    <h2>Open Tickets <span class="ticket-count">253</span></h2>
+                    <div class="mock-ticket">
+                        <div class="mock-ticket-item">302 (2003 Ford F-550)</div>
+                        <div class="mock-ticket-assigned">Chase</div>
+                        <div class="mock-ticket-notes">Brake pads worn, grinding noise when stopping</div>
+                    </div>
+                    <div class="mock-ticket">
+                        <div class="mock-ticket-item">Back Pack Blower (603)</div>
+                        <div class="mock-ticket-assigned">308, Miguel</div>
+                        <div class="mock-ticket-notes">Won't start, pull cord stuck</div>
+                    </div>
+                    <div class="mock-ticket">
+                        <div class="mock-ticket-item">401 (2018 Ford F-150)</div>
+                        <div class="mock-ticket-assigned">Tony</div>
+                        <div class="mock-ticket-notes">AC not blowing cold</div>
+                    </div>
                 </div>
-                <div class="header-stat">
-                    <div class="stat-value yellow" id="dueSoonCount">0</div>
-                    <div class="stat-label">Due Soon</div>
-                </div>
-                <div class="header-stat">
-                    <div class="stat-value green" id="goodCount">0</div>
-                    <div class="stat-label">Good</div>
+
+                <!-- Completed Today -->
+                <div class="tickets-section">
+                    <h2>Completed Today <span class="ticket-count" style="background: var(--text-muted);">2</span></h2>
+                    <div class="mock-ticket" style="border-left-color: var(--primary); opacity: 0.7;">
+                        <div class="mock-ticket-item">305 (2020 Ford F-550)</div>
+                        <div class="mock-ticket-assigned">Jake</div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- View Tabs -->
-            <div class="view-tabs">
-                <div class="view-tab active" onclick="switchView(this, 'fleet')">Fleet Overview</div>
-                <div class="view-tab" onclick="switchView(this, 'monday')">Monday Mileage</div>
-            </div>
-
-            <!-- ==================== FLEET OVERVIEW VIEW ==================== -->
-            <div class="view-panel active" id="view-fleet">
-                <div class="fleet-overview">
-                    <table class="fleet-table">
-                        <thead>
-                            <tr>
-                                <th>Truck</th>
-                                <th>Fuel</th>
-                                <th>Interval</th>
-                                <th>Current Odo</th>
-                                <th>Last Service</th>
-                                <th>Miles Remaining</th>
-                                <th>Status</th>
-                                <th>Next Due (Est.)</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody id="fleetBody"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- ==================== MONDAY MILEAGE VIEW ==================== -->
-            <div class="view-panel" id="view-monday">
-                <div class="monday-container">
-                    <div class="monday-header">
-                        <div class="monday-header-icon">📋</div>
-                        <div class="monday-header-text">
-                            <h2>Monday Mileage Check-In</h2>
-                            <p>Enter odometer readings from the weekly clipboard. Updates maintenance schedule automatically.</p>
-                        </div>
+        <!-- ==================== TAB 2: FLEET OVERVIEW ==================== -->
+        <div class="tab-panel" id="tab-fleet">
+            <div class="fleet-header">
+                <h2>Truck Maintenance Schedule</h2>
+                <div class="fleet-stats">
+                    <div class="fleet-stat">
+                        <div class="stat-value red" id="overdueCount">0</div>
+                        <div class="stat-label">Overdue</div>
                     </div>
-                    <table class="monday-table">
-                        <thead>
-                            <tr>
-                                <th>Truck</th>
-                                <th>Fuel</th>
-                                <th>Previous Reading</th>
-                                <th>New Reading</th>
-                                <th>Miles This Week</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody id="mondayBody"></tbody>
-                    </table>
+                    <div class="fleet-stat">
+                        <div class="stat-value yellow" id="dueSoonCount">0</div>
+                        <div class="stat-label">Due Soon</div>
+                    </div>
+                    <div class="fleet-stat">
+                        <div class="stat-value green" id="goodCount">0</div>
+                        <div class="stat-label">Good</div>
+                    </div>
                 </div>
+            </div>
+
+            <div class="fleet-overview">
+                <table class="fleet-table">
+                    <thead>
+                        <tr>
+                            <th>Truck</th>
+                            <th>Fuel</th>
+                            <th>Interval</th>
+                            <th>Current Odo</th>
+                            <th>Last Service</th>
+                            <th>Miles Remaining</th>
+                            <th>Status</th>
+                            <th>Next Due (Est.)</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="fleetBody"></tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <script>
+        // ============================================
+        // TAB SWITCHING
+        // ============================================
+        function switchTab(tabEl, tabId) {
+            document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            tabEl.classList.add('active');
+            document.getElementById('tab-' + tabId).classList.add('active');
+        }
+
         // ============================================
         // MOCK FLEET DATA
         // ============================================
@@ -629,18 +692,15 @@
             const milesRemaining = interval - milesSinceService;
             const percentUsed = Math.min((milesSinceService / interval) * 100, 120);
 
-            let status, statusLabel, color;
+            let status, color;
             if (milesRemaining <= 0) {
                 status = 'overdue';
-                statusLabel = Math.abs(milesRemaining).toLocaleString() + ' mi OVERDUE';
                 color = 'red';
             } else if (milesRemaining <= interval * 0.25) {
                 status = 'due-soon';
-                statusLabel = milesRemaining.toLocaleString() + ' mi remaining';
                 color = 'yellow';
             } else {
                 status = 'good';
-                statusLabel = milesRemaining.toLocaleString() + ' mi remaining';
                 color = 'green';
             }
 
@@ -648,7 +708,7 @@
             const nextDueDate = new Date();
             nextDueDate.setDate(nextDueDate.getDate() + (weeksUntilDue * 7));
 
-            return { interval, milesSinceService, milesRemaining, percentUsed: Math.min(percentUsed, 100), status, statusLabel, color, nextDueDate };
+            return { interval, milesSinceService, milesRemaining, percentUsed: Math.min(percentUsed, 100), status, color, nextDueDate };
         }
 
         // ============================================
@@ -670,7 +730,7 @@
             document.getElementById('goodCount').textContent = good;
 
             body.innerHTML = trucksWithStatus.map(t => {
-                const truckIndex = TRUCKS.findIndex(tr => tr.id === t.id);
+                const idx = TRUCKS.findIndex(tr => tr.id === t.id);
                 return `
                 <tr>
                     <td>
@@ -680,12 +740,12 @@
                     <td><span class="fuel-badge ${t.fuel}">${t.fuel.toUpperCase()}</span></td>
                     <td>${t.calc.interval.toLocaleString()} mi</td>
                     <td>
-                        <div class="odo-cell-content" id="odo-cell-${truckIndex}">
+                        <div class="odo-cell-content" id="odo-cell-${idx}">
                             <span class="odo-display">${t.odo.toLocaleString()}</span>
                             <div class="odo-inline-edit">
-                                <input type="number" class="odo-inline-input" id="odo-input-${truckIndex}" value="${t.odo}">
-                                <button class="btn-save-inline" onclick="saveOdo(${truckIndex})">Save</button>
-                                <button class="btn-cancel-inline" onclick="cancelOdo(${truckIndex})">X</button>
+                                <input type="number" class="odo-inline-input" id="odo-input-${idx}" value="${t.odo}">
+                                <button class="btn-save-inline" onclick="saveOdo(${idx})">Save</button>
+                                <button class="btn-cancel-inline" onclick="cancelOdo(${idx})">X</button>
                             </div>
                         </div>
                     </td>
@@ -699,9 +759,8 @@
                     </td>
                     <td><span class="status-badge ${t.calc.status}">${t.calc.status === 'overdue' ? 'OVERDUE' : t.calc.status === 'due-soon' ? 'DUE SOON' : 'GOOD'}</span></td>
                     <td style="color: var(--text-muted);">${t.calc.status === 'overdue' ? 'NOW' : formatShortDate(t.calc.nextDueDate)}</td>
-                    <td><button class="btn-update" onclick="startOdoEdit(${truckIndex})">Update</button></td>
-                </tr>
-                `;
+                    <td><button class="btn-update" onclick="startOdoEdit(${idx})">Update</button></td>
+                </tr>`;
             }).join('');
         }
 
@@ -709,9 +768,7 @@
         // INLINE ODOMETER EDIT
         // ============================================
         function startOdoEdit(index) {
-            // Close any other open edits
             document.querySelectorAll('.odo-cell-content.editing').forEach(el => el.classList.remove('editing'));
-
             const cell = document.getElementById('odo-cell-' + index);
             cell.classList.add('editing');
             const input = document.getElementById('odo-input-' + index);
@@ -733,87 +790,6 @@
             }
             TRUCKS[index].odo = newOdo;
             renderFleet();
-            renderMonday();
-        }
-
-        // ============================================
-        // RENDER MONDAY MILEAGE
-        // ============================================
-        function renderMonday() {
-            const body = document.getElementById('mondayBody');
-            const sorted = [...TRUCKS].sort((a, b) => a.id.localeCompare(b.id));
-
-            body.innerHTML = sorted.map((t, i) => {
-                return `
-                <tr>
-                    <td>
-                        <div style="font-weight: 800;">${t.id} (${t.name})</div>
-                        <div style="font-size: 0.8em; color: var(--text-muted);">${t.group}</div>
-                    </td>
-                    <td><span class="fuel-badge ${t.fuel}" style="font-size: 0.7rem;">${t.fuel.toUpperCase()}</span></td>
-                    <td class="monday-prev-odo">${t.odo.toLocaleString()} mi</td>
-                    <td><input type="number" class="monday-odo-input" id="monday-input-${t.id}" placeholder="${t.odo.toLocaleString()}" oninput="updateDelta('${t.id}', ${t.odo})"></td>
-                    <td><span class="monday-delta zero" id="monday-delta-${t.id}">--</span></td>
-                    <td><button class="monday-save-row" id="monday-save-${t.id}" onclick="saveMondayReading('${t.id}')">Save</button></td>
-                </tr>
-                `;
-            }).join('');
-        }
-
-        function updateDelta(truckId, prevOdo) {
-            const input = document.getElementById('monday-input-' + truckId);
-            const delta = document.getElementById('monday-delta-' + truckId);
-            const newVal = parseInt(input.value);
-
-            if (isNaN(newVal) || newVal <= 0) {
-                delta.textContent = '--';
-                delta.className = 'monday-delta zero';
-                return;
-            }
-
-            const diff = newVal - prevOdo;
-            if (diff > 0) {
-                delta.textContent = '+' + diff.toLocaleString() + ' mi';
-                delta.className = 'monday-delta positive';
-            } else if (diff === 0) {
-                delta.textContent = '0 mi';
-                delta.className = 'monday-delta zero';
-            } else {
-                delta.textContent = diff.toLocaleString() + ' mi';
-                delta.className = 'monday-delta zero';
-                input.style.borderColor = 'var(--danger)';
-                return;
-            }
-            input.style.borderColor = 'var(--border)';
-        }
-
-        function saveMondayReading(truckId) {
-            const input = document.getElementById('monday-input-' + truckId);
-            const btn = document.getElementById('monday-save-' + truckId);
-            const newVal = parseInt(input.value);
-            const truck = TRUCKS.find(t => t.id === truckId);
-
-            if (isNaN(newVal) || newVal < truck.odo) return;
-
-            truck.odo = newVal;
-            btn.textContent = 'Saved';
-            btn.classList.add('saved');
-            input.disabled = true;
-            input.style.borderColor = 'var(--primary)';
-            input.style.opacity = '0.6';
-
-            // Refresh fleet view counts
-            renderFleet();
-        }
-
-        // ============================================
-        // VIEW SWITCHING
-        // ============================================
-        function switchView(tabEl, view) {
-            document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
-            tabEl.classList.add('active');
-            document.getElementById('view-' + view).classList.add('active');
         }
 
         // ============================================
@@ -833,7 +809,6 @@
         // INIT
         // ============================================
         renderFleet();
-        renderMonday();
     </script>
 </body>
 </html>
