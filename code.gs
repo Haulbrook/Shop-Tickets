@@ -883,6 +883,33 @@
   }
 
   // ============================================
+  // TEST: Run this from the Script Editor to verify odometer writes work
+  // ============================================
+  function testUpdateOdometer() {
+    Logger.log('Testing updateOdometer...');
+    Logger.log('SPREADSHEET_ID: ' + SPREADSHEET_ID);
+
+    // Check if Maintenance sheet exists
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const sheet = ss.getSheetByName(MAINTENANCE_SHEET_NAME);
+    Logger.log('Maintenance sheet exists: ' + (sheet !== null));
+
+    // Try a test write
+    const result = updateOdometer('TEST-001', 12345);
+    Logger.log('Result: ' + JSON.stringify(result));
+
+    // Verify it was written
+    const sheet2 = ss.getSheetByName(MAINTENANCE_SHEET_NAME);
+    if (sheet2) {
+      const data = sheet2.getDataRange().getValues();
+      Logger.log('Maintenance sheet rows: ' + data.length);
+      for (let i = 0; i < data.length; i++) {
+        Logger.log('Row ' + i + ': ' + JSON.stringify(data[i]));
+      }
+    }
+  }
+
+  // ============================================
   // UTILITY FUNCTIONS
   // ============================================
   function formatDateTime(value) {
