@@ -14,15 +14,21 @@
         :root {
             --primary: #22c55e;
             --primary-dark: #166534;
+            --primary-glow: rgba(34, 197, 94, 0.4);
             --danger: #ef4444;
+            --danger-glow: rgba(239, 68, 68, 0.3);
             --warning: #fbbf24;
+            --warning-glow: rgba(251, 191, 36, 0.3);
             --repair: #f97316;
             --bg: #0d1117;
             --bg-card: #161b22;
             --bg-input: #21262d;
+            --bg-elevated: #1c2128;
             --text: #f0f6fc;
             --text-muted: #8b949e;
             --border: #30363d;
+            --diesel: #3b82f6;
+            --gas: #a855f7;
         }
 
         body {
@@ -34,7 +40,7 @@
         }
 
         .container {
-            max-width: 600px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
@@ -344,6 +350,306 @@
                 opacity: 1;
                 transform: translate(-50%, 0);
             }
+        }
+
+        /* ============================================
+           TAB NAVIGATION
+           ============================================ */
+        .tab-nav {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 24px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 4px;
+            border: 1px solid var(--border);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: var(--text);
+            background: var(--bg-elevated);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* Constrain tickets tab to original width */
+        .tickets-tab-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* ============================================
+           FLEET OVERVIEW (Tab 2)
+           ============================================ */
+        .fleet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .fleet-header h2 {
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .fleet-stats {
+            display: flex;
+            gap: 12px;
+        }
+
+        .fleet-stat {
+            text-align: center;
+            padding: 8px 16px;
+            background: var(--bg-card);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .fleet-stat .fleet-stat-value {
+            font-size: 1.5rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .fleet-stat .fleet-stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .fleet-stat-value.red { color: var(--danger); }
+        .fleet-stat-value.yellow { color: var(--warning); }
+        .fleet-stat-value.green { color: var(--primary); }
+
+        .fleet-overview {
+            overflow-x: auto;
+        }
+
+        .fleet-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: var(--bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .fleet-table thead th {
+            position: sticky;
+            top: 0;
+            background: var(--bg-elevated);
+            padding: 12px 14px;
+            text-align: left;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid var(--border);
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .fleet-table tbody tr {
+            transition: background 0.2s;
+        }
+
+        .fleet-table tbody tr:hover {
+            background: var(--bg-elevated);
+        }
+
+        .fleet-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+
+        .fleet-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .fuel-badge {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: inline-block;
+        }
+
+        .fuel-badge.diesel {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--diesel);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .fuel-badge.gas {
+            background: rgba(168, 85, 247, 0.15);
+            color: var(--gas);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+
+        .fleet-status-badge {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            white-space: nowrap;
+            display: inline-block;
+        }
+
+        .fleet-status-badge.overdue {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+            animation: pulse-red 2s ease-in-out infinite;
+        }
+
+        .fleet-status-badge.due-soon {
+            background: rgba(251, 191, 36, 0.15);
+            color: var(--warning);
+        }
+
+        .fleet-status-badge.good {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--primary);
+        }
+
+        @keyframes pulse-red {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .progress-miles { font-weight: 700; }
+        .progress-miles.red { color: var(--danger); }
+        .progress-miles.yellow { color: var(--warning); }
+        .progress-miles.green { color: var(--primary); }
+
+        .mini-bar {
+            width: 80px;
+            height: 5px;
+            background: var(--bg);
+            border-radius: 3px;
+            overflow: hidden;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 6px;
+        }
+
+        .mini-fill { height: 100%; border-radius: 3px; }
+
+        .progress-fill.red {
+            background: linear-gradient(90deg, var(--danger), #dc2626);
+            box-shadow: 0 0 6px var(--danger-glow);
+        }
+
+        .progress-fill.yellow {
+            background: linear-gradient(90deg, #f59e0b, var(--warning));
+        }
+
+        .progress-fill.green {
+            background: linear-gradient(90deg, #16a34a, var(--primary));
+        }
+
+        /* Inline Odometer Edit */
+        .btn-update {
+            padding: 5px 14px;
+            background: var(--bg-input);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-update:hover {
+            background: var(--primary-dark);
+            color: var(--text);
+            border-color: var(--primary);
+        }
+
+        .odo-inline-edit {
+            display: none;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .odo-inline-input {
+            width: 100px;
+            padding: 5px 8px;
+            border: 2px solid var(--primary);
+            border-radius: 6px;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-align: right;
+            outline: none;
+        }
+
+        .odo-inline-input:focus {
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        .btn-save-inline {
+            padding: 5px 10px;
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-cancel-inline {
+            padding: 5px 8px;
+            background: none;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+
+        .odo-display { font-weight: 700; }
+
+        .odo-cell-content.editing .odo-display,
+        .odo-cell-content.editing .btn-update { display: none; }
+        .odo-cell-content.editing .odo-inline-edit { display: inline-flex; }
+
+        .fleet-loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
         }
 
         /* Settings */
@@ -916,6 +1222,16 @@
             <p>Submit and manage repair requests</p>
         </header>
 
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab(this, 'tickets')">Shop Repair Tickets</button>
+            <button class="tab-btn" onclick="switchTab(this, 'fleet')">Fleet Overview</button>
+        </div>
+
+        <!-- ==================== TAB 1: SHOP REPAIR TICKETS ==================== -->
+        <div class="tab-panel active" id="tab-tickets">
+        <div class="tickets-tab-content">
+
         <!-- New Ticket Form -->
         <div class="form-card">
             <h2>New Ticket</h2>
@@ -965,6 +1281,51 @@
                     <div class="empty-state-icon">-</div>
                     <p>No completed tickets today</p>
                 </div>
+            </div>
+        </div>
+
+        </div><!-- /.tickets-tab-content -->
+        </div><!-- /#tab-tickets -->
+
+        <!-- ==================== TAB 2: FLEET OVERVIEW ==================== -->
+        <div class="tab-panel" id="tab-fleet">
+            <div class="fleet-header">
+                <h2>Truck Maintenance Schedule</h2>
+                <div class="fleet-stats">
+                    <div class="fleet-stat">
+                        <div class="fleet-stat-value red" id="fleetOverdueCount">0</div>
+                        <div class="fleet-stat-label">Overdue</div>
+                    </div>
+                    <div class="fleet-stat">
+                        <div class="fleet-stat-value yellow" id="fleetDueSoonCount">0</div>
+                        <div class="fleet-stat-label">Due Soon</div>
+                    </div>
+                    <div class="fleet-stat">
+                        <div class="fleet-stat-value green" id="fleetGoodCount">0</div>
+                        <div class="fleet-stat-label">Good</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fleet-overview">
+                <table class="fleet-table">
+                    <thead>
+                        <tr>
+                            <th>Truck</th>
+                            <th>Fuel</th>
+                            <th>Interval</th>
+                            <th>Current Odo</th>
+                            <th>Last Service</th>
+                            <th>Miles Remaining</th>
+                            <th>Status</th>
+                            <th>Next Due (Est.)</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="fleetBody">
+                        <tr><td colspan="9" class="fleet-loading">Loading fleet data...</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -1770,6 +2131,217 @@
             const num = parseFloat(value);
             if (!num || isNaN(num)) return '-';
             return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // ============================================
+        // TAB SWITCHING
+        // ============================================
+        let fleetLoaded = false;
+
+        function switchTab(tabEl, tabId) {
+            document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            tabEl.classList.add('active');
+            document.getElementById('tab-' + tabId).classList.add('active');
+
+            // Load fleet data on first visit to Fleet tab
+            if (tabId === 'fleet' && !fleetLoaded) {
+                loadFleetMaintenance();
+            }
+        }
+
+        // ============================================
+        // FLEET MAINTENANCE DATA
+        // ============================================
+        let fleetTrucks = [];
+
+        async function loadFleetMaintenance() {
+            try {
+                const result = await callAPI('getTrucksForMaintenance');
+                if (result.success && result.response?.success && result.response?.trucks) {
+                    fleetTrucks = result.response.trucks;
+                    fleetLoaded = true;
+                    renderFleetOverview();
+                } else {
+                    const err = result.response?.error || 'Failed to load fleet data';
+                    document.getElementById('fleetBody').innerHTML =
+                        '<tr><td colspan="9" class="fleet-loading">' + escapeHtml(err) + '</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading fleet maintenance:', error);
+                document.getElementById('fleetBody').innerHTML =
+                    '<tr><td colspan="9" class="fleet-loading">Error loading fleet data</td></tr>';
+            }
+        }
+
+        // ============================================
+        // CALCULATE MAINTENANCE STATUS
+        // ============================================
+        function calculateMaintenanceStatus(truck) {
+            const interval = truck.fuelType === 'diesel' ? 8000 : 5000;
+            const currentOdo = truck.currentOdo || 0;
+            const lastServiceOdo = truck.lastServiceOdo || 0;
+            const milesSinceService = currentOdo - lastServiceOdo;
+            const milesRemaining = interval - milesSinceService;
+            const percentUsed = Math.min((milesSinceService / interval) * 100, 120);
+
+            let status, color;
+            if (milesRemaining <= 0) {
+                status = 'overdue';
+                color = 'red';
+            } else if (milesRemaining <= interval * 0.25) {
+                status = 'due-soon';
+                color = 'yellow';
+            } else {
+                status = 'good';
+                color = 'green';
+            }
+
+            // Estimate next due date based on ~400 miles/week
+            const weeksUntilDue = Math.max(0, milesRemaining / 400);
+            const nextDueDate = new Date();
+            nextDueDate.setDate(nextDueDate.getDate() + (weeksUntilDue * 7));
+
+            return { interval, milesSinceService, milesRemaining, percentUsed: Math.min(percentUsed, 100), status, color, nextDueDate };
+        }
+
+        // ============================================
+        // RENDER FLEET OVERVIEW
+        // ============================================
+        function renderFleetOverview() {
+            const body = document.getElementById('fleetBody');
+
+            if (!fleetTrucks || fleetTrucks.length === 0) {
+                body.innerHTML = '<tr><td colspan="9" class="fleet-loading">No trucks found. Run setupMaintenanceSheet() in Apps Script to initialize.</td></tr>';
+                return;
+            }
+
+            const trucksWithStatus = fleetTrucks.map(t => ({ ...t, calc: calculateMaintenanceStatus(t) }));
+            // Sort: overdue first, then due soon, then by miles remaining ascending
+            trucksWithStatus.sort((a, b) => a.calc.milesRemaining - b.calc.milesRemaining);
+
+            let overdue = 0, dueSoon = 0, good = 0;
+            trucksWithStatus.forEach(t => {
+                if (t.calc.status === 'overdue') overdue++;
+                else if (t.calc.status === 'due-soon') dueSoon++;
+                else good++;
+            });
+            document.getElementById('fleetOverdueCount').textContent = overdue;
+            document.getElementById('fleetDueSoonCount').textContent = dueSoon;
+            document.getElementById('fleetGoodCount').textContent = good;
+
+            body.innerHTML = trucksWithStatus.map((t, idx) => {
+                const fuelClass = t.fuelType === 'diesel' ? 'diesel' : 'gas';
+                const statusLabel = t.calc.status === 'overdue' ? 'OVERDUE' : t.calc.status === 'due-soon' ? 'DUE SOON' : 'GOOD';
+                const milesText = t.calc.milesRemaining <= 0
+                    ? '-' + Math.abs(t.calc.milesRemaining).toLocaleString()
+                    : t.calc.milesRemaining.toLocaleString();
+                const nextDueText = t.calc.status === 'overdue' ? 'NOW' : formatFleetDate(t.calc.nextDueDate);
+
+                return `
+                <tr>
+                    <td>
+                        <div style="font-weight: 800;">${escapeHtml(t.displayName)}</div>
+                        <div style="font-size: 0.8em; color: var(--text-muted);">${escapeHtml(t.group)}</div>
+                    </td>
+                    <td><span class="fuel-badge ${fuelClass}">${escapeHtml(t.fuelType.toUpperCase())}</span></td>
+                    <td>${t.calc.interval.toLocaleString()} mi</td>
+                    <td>
+                        <div class="odo-cell-content" id="odo-cell-${idx}">
+                            <span class="odo-display">${t.currentOdo ? t.currentOdo.toLocaleString() : 'N/A'}</span>
+                            <button class="btn-update" onclick="startFleetOdoEdit(${idx})">Update</button>
+                            <div class="odo-inline-edit">
+                                <input type="number" class="odo-inline-input" id="odo-input-${idx}" value="${t.currentOdo || 0}">
+                                <button class="btn-save-inline" onclick="saveFleetOdo(${idx})">Save</button>
+                                <button class="btn-cancel-inline" onclick="cancelFleetOdo(${idx})">X</button>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        ${t.lastServiceDate ? formatFleetDateStr(t.lastServiceDate) : 'N/A'}<br>
+                        <span style="color: var(--text-muted); font-size: 0.8em;">@ ${t.lastServiceOdo ? t.lastServiceOdo.toLocaleString() + ' mi' : 'N/A'}</span>
+                    </td>
+                    <td>
+                        <span class="progress-miles ${t.calc.color}">${milesText} mi</span>
+                        <div class="mini-bar"><div class="mini-fill progress-fill ${t.calc.color}" style="width: ${t.calc.percentUsed}%"></div></div>
+                    </td>
+                    <td><span class="fleet-status-badge ${t.calc.status}">${statusLabel}</span></td>
+                    <td style="color: var(--text-muted);">${nextDueText}</td>
+                    <td></td>
+                </tr>`;
+            }).join('');
+        }
+
+        // ============================================
+        // INLINE ODOMETER EDIT (Fleet)
+        // ============================================
+        function startFleetOdoEdit(index) {
+            document.querySelectorAll('.odo-cell-content.editing').forEach(el => el.classList.remove('editing'));
+            const cell = document.getElementById('odo-cell-' + index);
+            cell.classList.add('editing');
+            const input = document.getElementById('odo-input-' + index);
+            input.value = fleetTrucks[index].currentOdo || 0;
+            input.focus();
+            input.select();
+        }
+
+        function cancelFleetOdo(index) {
+            document.getElementById('odo-cell-' + index).classList.remove('editing');
+        }
+
+        async function saveFleetOdo(index) {
+            const input = document.getElementById('odo-input-' + index);
+            const newOdo = parseInt(input.value);
+            const truck = fleetTrucks[index];
+
+            if (isNaN(newOdo) || newOdo < 0) {
+                input.style.borderColor = 'var(--danger)';
+                return;
+            }
+
+            if (truck.currentOdo && newOdo < truck.currentOdo) {
+                if (!confirm('New odometer (' + newOdo.toLocaleString() + ') is less than current (' + truck.currentOdo.toLocaleString() + '). Continue anyway?')) {
+                    return;
+                }
+            }
+
+            // Save button feedback
+            const saveBtn = input.nextElementSibling;
+            const origText = saveBtn.textContent;
+            saveBtn.textContent = '...';
+            saveBtn.disabled = true;
+
+            try {
+                await callAPI('updateOdometer', [{
+                    assetId: truck.assetId,
+                    odometer: newOdo
+                }]);
+
+                // Update local data and re-render
+                fleetTrucks[index].currentOdo = newOdo;
+                renderFleetOverview();
+                showToast('Odometer updated', 'success');
+            } catch (error) {
+                showToast('Error: ' + error.message, 'error');
+                input.style.borderColor = 'var(--danger)';
+            } finally {
+                saveBtn.textContent = origText;
+                saveBtn.disabled = false;
+            }
+        }
+
+        // ============================================
+        // FLEET DATE FORMATTERS
+        // ============================================
+        function formatFleetDate(date) {
+            if (!date) return 'N/A';
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        function formatFleetDateStr(dateStr) {
+            if (!dateStr) return 'N/A';
+            const d = new Date(dateStr + (dateStr.includes('T') ? '' : 'T00:00:00'));
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         }
     </script>
 </body>

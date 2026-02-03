@@ -18,6 +18,9 @@
   const ASSETS_SHEET_ID = '1AmyIFL74or_Nh0QLMu_n18YosrSP9E4EA6k5MTzlq1Y'; // Asset In/Out list spreadsheet
   const ASSETS_SHEET_NAME = 'Master'; // Sheet name containing equipment list
 
+  // Maintenance tracking sheet (lives in the same Tickets spreadsheet)
+  const MAINTENANCE_SHEET_NAME = 'Maintenance'; // Tracks odometer & service history per truck
+
   // Full Asset column mapping (0-based) - for getAssetDetails
   const ASSET_DETAIL_COLS = {
     IN_OUT_SERVICE: 0,      // A
@@ -163,6 +166,15 @@
           const assetId = functionParams[0] || data.assetId;
           const assetResult = getAssetDetails(assetId);
           result = { success: true, response: assetResult };
+          break;
+        case 'getTrucksForMaintenance':
+          const maintResult = getTrucksForMaintenance();
+          result = { success: true, response: maintResult };
+          break;
+        case 'updateOdometer':
+          const odoData = functionParams[0] || data;
+          const odoResult = updateOdometer(odoData.assetId, odoData.odometer);
+          result = { success: true, response: odoResult };
           break;
         default:
           result = { success: false, error: 'Unknown action: ' + action };
@@ -662,6 +674,212 @@
     } catch (error) {
       return { success: false, error: error.toString() };
     }
+  }
+
+  // ============================================
+  // GET TRUCKS FOR MAINTENANCE (Fleet Overview)
+  // ============================================
+  function getTrucksForMaintenance() {
+    try {
+      // 1. Read all assets from Master sheet
+      const assetsSS = SpreadsheetApp.openById(ASSETS_SHEET_ID);
+      const assetsSheet = assetsSS.getSheetByName(ASSETS_SHEET_NAME);
+      if (!assetsSheet) {
+        return { success: false, error: 'Assets sheet not found' };
+      }
+
+      const assetsData = assetsSheet.getDataRange().getValues();
+      const C = ASSET_DETAIL_COLS;
+
+      // Truck groups (lowercase for matching)
+      const truckGroups = ['install truck', 'maintenance truck', 'office truck'];
+
+      // 2. Read maintenance tracking data
+      const ticketsSS = SpreadsheetApp.openById(SPREADSHEET_ID);
+      let maintSheet = ticketsSS.getSheetByName(MAINTENANCE_SHEET_NAME);
+
+      // Build lookup from maintenance sheet: assetId -> { currentOdo, lastServiceOdo, lastServiceDate }
+      const maintData = {};
+      if (maintSheet) {
+        const maintRows = maintSheet.getDataRange().getValues();
+        for (let i = 1; i < maintRows.length; i++) {
+          const row = maintRows[i];
+          const id = String(row[0] || '').trim();
+          if (id) {
+            maintData[id] = {
+              currentOdo: parseFloat(row[1]) || 0,
+              lastServiceOdo: parseFloat(row[2]) || 0,
+              lastServiceDate: row[3] ? formatDateTime(row[3]) : ''
+            };
+          }
+        }
+      }
+
+      // 3. Filter trucks from assets and merge with maintenance data
+      const trucks = [];
+      for (let i = 1; i < assetsData.length; i++) {
+        const row = assetsData[i];
+        const dept = String(row[C.DEPARTMENT] || '').trim().toLowerCase();
+        const group = String(row[C.INVISITAG_GROUP] || '').trim().toLowerCase();
+        const name = String(row[C.NAME] || '').trim();
+        const assetNumber = String(row[C.ASSET_NUMBER] || '').trim();
+        const fuel = String(row[C.FUEL] || '').trim().toLowerCase();
+        const inOutService = String(row[C.IN_OUT_SERVICE] || '').trim().toLowerCase();
+
+        // Skip non-trucks
+        if (!truckGroups.includes(group)) continue;
+        if (!name) continue;
+
+        // Skip assets marked as out of service
+        if (inOutService === 'out' || inOutService === 'out of service') continue;
+
+        // Determine fuel type (default to gas if unknown)
+        let fuelType = 'gas';
+        if (fuel.includes('diesel')) {
+          fuelType = 'diesel';
+        }
+
+        // Build display name (same format as fleet items)
+        let displayName;
+        if (assetNumber) {
+          displayName = assetNumber + ' (' + name + ')';
+        } else {
+          displayName = name;
+        }
+
+        // Capitalize group for display
+        const groupDisplay = String(row[C.INVISITAG_GROUP] || '').trim();
+
+        // Merge with maintenance tracking data
+        const assetId = assetNumber || 'ROW-' + i;
+        const maint = maintData[assetId] || { currentOdo: 0, lastServiceOdo: 0, lastServiceDate: '' };
+
+        trucks.push({
+          assetId: assetId,
+          displayName: displayName,
+          assetName: name,
+          assetNumber: assetNumber,
+          group: groupDisplay,
+          fuelType: fuelType,
+          currentOdo: maint.currentOdo,
+          lastServiceOdo: maint.lastServiceOdo,
+          lastServiceDate: maint.lastServiceDate
+        });
+      }
+
+      // Sort by asset number
+      trucks.sort((a, b) => {
+        const numA = parseInt(a.assetNumber) || 9999;
+        const numB = parseInt(b.assetNumber) || 9999;
+        return numA - numB;
+      });
+
+      return { success: true, trucks: trucks };
+    } catch (error) {
+      return { success: false, error: error.toString() };
+    }
+  }
+
+  // ============================================
+  // UPDATE ODOMETER READING
+  // ============================================
+  function updateOdometer(assetId, odometer) {
+    try {
+      if (!assetId) {
+        return { success: false, error: 'Asset ID is required' };
+      }
+
+      const newOdo = parseFloat(odometer);
+      if (isNaN(newOdo) || newOdo < 0) {
+        return { success: false, error: 'Valid odometer reading is required' };
+      }
+
+      const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+      let sheet = ss.getSheetByName(MAINTENANCE_SHEET_NAME);
+
+      // Auto-create sheet if it doesn't exist
+      if (!sheet) {
+        sheet = ss.insertSheet(MAINTENANCE_SHEET_NAME);
+        sheet.getRange(1, 1, 1, 5).setValues([[
+          'Asset ID', 'Current Odometer', 'Last Service Odometer', 'Last Service Date', 'Last Updated'
+        ]]);
+        sheet.getRange(1, 1, 1, 5)
+          .setFontWeight('bold')
+          .setBackground('#4a4a4a')
+          .setFontColor('#ffffff');
+        sheet.setFrozenRows(1);
+      }
+
+      const data = sheet.getDataRange().getValues();
+      let rowIndex = -1;
+
+      // Find existing row for this asset
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][0] || '').trim() === String(assetId).trim()) {
+          rowIndex = i + 1; // 1-indexed
+          break;
+        }
+      }
+
+      const now = new Date();
+
+      if (rowIndex > 0) {
+        // Update existing row
+        sheet.getRange(rowIndex, 2).setValue(newOdo);    // Current Odometer
+        sheet.getRange(rowIndex, 5).setValue(now);        // Last Updated
+      } else {
+        // Insert new row
+        sheet.appendRow([
+          String(assetId).trim(),
+          newOdo,
+          0,      // Last Service Odometer (not yet serviced in system)
+          '',     // Last Service Date
+          now     // Last Updated
+        ]);
+      }
+
+      return { success: true, message: 'Odometer updated to ' + newOdo };
+    } catch (error) {
+      return { success: false, error: error.toString() };
+    }
+  }
+
+  // ============================================
+  // SETUP MAINTENANCE SHEET - Run once to create
+  // ============================================
+  function setupMaintenanceSheet() {
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    let sheet = ss.getSheetByName(MAINTENANCE_SHEET_NAME);
+
+    if (!sheet) {
+      sheet = ss.insertSheet(MAINTENANCE_SHEET_NAME);
+    }
+
+    // Set headers
+    sheet.getRange(1, 1, 1, 5).setValues([[
+      'Asset ID',              // A - matches asset number from Master sheet
+      'Current Odometer',      // B - latest odometer reading
+      'Last Service Odometer', // C - odometer at last oil change/service
+      'Last Service Date',     // D - date of last service
+      'Last Updated'           // E - timestamp of last odometer update
+    ]]);
+
+    // Format header
+    sheet.getRange(1, 1, 1, 5)
+      .setFontWeight('bold')
+      .setBackground('#4a4a4a')
+      .setFontColor('#ffffff');
+
+    // Column widths
+    sheet.setColumnWidth(1, 120);
+    sheet.setColumnWidth(2, 160);
+    sheet.setColumnWidth(3, 180);
+    sheet.setColumnWidth(4, 140);
+    sheet.setColumnWidth(5, 160);
+
+    sheet.setFrozenRows(1);
+
+    return 'Maintenance sheet setup complete! Columns: Asset ID, Current Odometer, Last Service Odometer, Last Service Date, Last Updated';
   }
 
   // ============================================
