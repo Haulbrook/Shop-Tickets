@@ -2144,8 +2144,8 @@
             tabEl.classList.add('active');
             document.getElementById('tab-' + tabId).classList.add('active');
 
-            // Load fleet data on first visit to Fleet tab
-            if (tabId === 'fleet' && !fleetLoaded) {
+            // Always reload fleet data when switching to Fleet tab
+            if (tabId === 'fleet') {
                 loadFleetMaintenance();
             }
         }
@@ -2324,10 +2324,20 @@
                     throw new Error(result.response.error || 'Save failed');
                 }
 
-                // Update local data and re-render
-                fleetTrucks[index].currentOdo = newOdo;
-                renderFleetOverview();
-                showToast('Odometer updated for ' + truck.assetId, 'success');
+                showToast('Odometer saved for ' + truck.assetId + '. Reloading...', 'success');
+
+                // Reload fleet data from backend to verify it persisted
+                await loadFleetMaintenance();
+
+                // Check if the value actually came back from the backend
+                const savedTruck = fleetTrucks.find(t => t.assetId === truck.assetId);
+                if (savedTruck && savedTruck.currentOdo === newOdo) {
+                    console.log('Verified: odometer persisted for ' + truck.assetId);
+                } else {
+                    console.warn('WARNING: odometer did NOT persist for ' + truck.assetId +
+                        '. Backend returned: ' + (savedTruck ? savedTruck.currentOdo : 'truck not found'));
+                    showToast('Save reported success but data did not persist!', 'error');
+                }
             } catch (error) {
                 showToast('Error: ' + error.message, 'error');
                 input.style.borderColor = 'var(--danger)';
