@@ -2237,6 +2237,7 @@
                     ? '-' + Math.abs(t.calc.milesRemaining).toLocaleString()
                     : t.calc.milesRemaining.toLocaleString();
                 const nextDueText = t.calc.status === 'overdue' ? 'NOW' : formatFleetDate(t.calc.nextDueDate);
+                const safeId = escapeHtml(t.assetId);
 
                 return `
                 <tr>
@@ -2247,13 +2248,13 @@
                     <td><span class="fuel-badge ${fuelClass}">${escapeHtml(t.fuelType.toUpperCase())}</span></td>
                     <td>${t.calc.interval.toLocaleString()} mi</td>
                     <td>
-                        <div class="odo-cell-content" id="odo-cell-${idx}">
+                        <div class="odo-cell-content" id="odo-cell-${safeId}">
                             <span class="odo-display">${t.currentOdo ? t.currentOdo.toLocaleString() : 'N/A'}</span>
-                            <button class="btn-update" onclick="startFleetOdoEdit(${idx})">Update</button>
+                            <button class="btn-update" onclick="startFleetOdoEdit('${safeId}')">Update</button>
                             <div class="odo-inline-edit">
-                                <input type="number" class="odo-inline-input" id="odo-input-${idx}" value="${t.currentOdo || 0}">
-                                <button class="btn-save-inline" onclick="saveFleetOdo(${idx})">Save</button>
-                                <button class="btn-cancel-inline" onclick="cancelFleetOdo(${idx})">X</button>
+                                <input type="number" class="odo-inline-input" id="odo-input-${safeId}" value="${t.currentOdo || 0}">
+                                <button class="btn-save-inline" onclick="saveFleetOdo('${safeId}')">Save</button>
+                                <button class="btn-cancel-inline" onclick="cancelFleetOdo('${safeId}')">X</button>
                             </div>
                         </div>
                     </td>
@@ -2275,24 +2276,30 @@
         // ============================================
         // INLINE ODOMETER EDIT (Fleet)
         // ============================================
-        function startFleetOdoEdit(index) {
+        function startFleetOdoEdit(assetId) {
             document.querySelectorAll('.odo-cell-content.editing').forEach(el => el.classList.remove('editing'));
-            const cell = document.getElementById('odo-cell-' + index);
+            const cell = document.getElementById('odo-cell-' + assetId);
             cell.classList.add('editing');
-            const input = document.getElementById('odo-input-' + index);
-            input.value = fleetTrucks[index].currentOdo || 0;
+            const input = document.getElementById('odo-input-' + assetId);
+            const truck = fleetTrucks.find(t => t.assetId === assetId);
+            input.value = (truck && truck.currentOdo) || 0;
             input.focus();
             input.select();
         }
 
-        function cancelFleetOdo(index) {
-            document.getElementById('odo-cell-' + index).classList.remove('editing');
+        function cancelFleetOdo(assetId) {
+            document.getElementById('odo-cell-' + assetId).classList.remove('editing');
         }
 
-        async function saveFleetOdo(index) {
-            const input = document.getElementById('odo-input-' + index);
+        async function saveFleetOdo(assetId) {
+            const input = document.getElementById('odo-input-' + assetId);
             const newOdo = parseInt(input.value);
-            const truck = fleetTrucks[index];
+            const truck = fleetTrucks.find(t => t.assetId === assetId);
+
+            if (!truck) {
+                showToast('Error: truck not found for ' + assetId, 'error');
+                return;
+            }
 
             if (isNaN(newOdo) || newOdo < 0) {
                 input.style.borderColor = 'var(--danger)';
@@ -2313,31 +2320,22 @@
 
             try {
                 const result = await callAPI('updateOdometer', [{
-                    assetId: truck.assetId,
+                    assetId: assetId,
                     odometer: newOdo
                 }]);
 
-                console.log('updateOdometer response:', JSON.stringify(result));
+                console.log('updateOdometer response for ' + assetId + ':', JSON.stringify(result));
 
                 // Check the inner response for actual success
                 if (result.response && !result.response.success) {
                     throw new Error(result.response.error || 'Save failed');
                 }
 
-                showToast('Odometer saved for ' + truck.assetId + '. Reloading...', 'success');
+                showToast('Odometer saved for ' + assetId, 'success');
 
                 // Reload fleet data from backend to verify it persisted
                 await loadFleetMaintenance();
 
-                // Check if the value actually came back from the backend
-                const savedTruck = fleetTrucks.find(t => t.assetId === truck.assetId);
-                if (savedTruck && savedTruck.currentOdo === newOdo) {
-                    console.log('Verified: odometer persisted for ' + truck.assetId);
-                } else {
-                    console.warn('WARNING: odometer did NOT persist for ' + truck.assetId +
-                        '. Backend returned: ' + (savedTruck ? savedTruck.currentOdo : 'truck not found'));
-                    showToast('Save reported success but data did not persist!', 'error');
-                }
             } catch (error) {
                 showToast('Error: ' + error.message, 'error');
                 input.style.borderColor = 'var(--danger)';
