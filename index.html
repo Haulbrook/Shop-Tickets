@@ -2317,6 +2317,8 @@
                     odometer: newOdo
                 }]);
 
+                console.log('updateOdometer response:', JSON.stringify(result));
+
                 // Check the inner response for actual success
                 if (result.response && !result.response.success) {
                     throw new Error(result.response.error || 'Save failed');
@@ -2325,7 +2327,7 @@
                 // Update local data and re-render
                 fleetTrucks[index].currentOdo = newOdo;
                 renderFleetOverview();
-                showToast('Odometer updated', 'success');
+                showToast('Odometer updated for ' + truck.assetId, 'success');
             } catch (error) {
                 showToast('Error: ' + error.message, 'error');
                 input.style.borderColor = 'var(--danger)';
