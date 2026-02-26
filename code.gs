@@ -691,8 +691,8 @@
       const assetsData = assetsSheet.getDataRange().getValues();
       const C = ASSET_DETAIL_COLS;
 
-      // Truck groups (lowercase for matching)
-      const truckGroups = ['install truck', 'maintenance truck', 'office truck'];
+      // Asset groups included in maintenance tracking (lowercase for matching)
+      const truckGroups = ['install truck', 'maintenance truck', 'office truck', 'heavy machine', 'mower', 'spray machine'];
 
       // 2. Read maintenance tracking data
       const ticketsSS = SpreadsheetApp.openById(SPREADSHEET_ID);

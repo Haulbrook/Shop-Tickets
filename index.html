@@ -1290,7 +1290,7 @@
         <!-- ==================== TAB 2: FLEET OVERVIEW ==================== -->
         <div class="tab-panel" id="tab-fleet">
             <div class="fleet-header">
-                <h2>Truck Maintenance Schedule</h2>
+                <h2>Maintenance Schedule</h2>
                 <div class="fleet-stats">
                     <div class="fleet-stat">
                         <div class="fleet-stat-value red" id="fleetOverdueCount">0</div>
@@ -1311,12 +1311,12 @@
                 <table class="fleet-table">
                     <thead>
                         <tr>
-                            <th>Truck</th>
+                            <th>Asset</th>
                             <th>Fuel</th>
                             <th>Interval</th>
-                            <th>Current Odo</th>
+                            <th>Current</th>
                             <th>Last Service</th>
-                            <th>Miles Remaining</th>
+                            <th>Remaining</th>
                             <th>Status</th>
                             <th>Next Due (Est.)</th>
                             <th></th>
@@ -2178,18 +2178,35 @@
         // CALCULATE MAINTENANCE STATUS
         // ============================================
         function calculateMaintenanceStatus(truck) {
-            const interval = truck.fuelType === 'diesel' ? 8000 : 5000;
+            const group = (truck.group || '').toLowerCase();
+
+            // Determine interval and unit based on asset group
+            let interval, unit, weeklyRate;
+            if (group === 'heavy machine') {
+                interval = 50;
+                unit = 'hrs';
+                weeklyRate = 25;
+            } else if (group === 'mower' || group === 'spray machine') {
+                interval = 80;
+                unit = 'hrs';
+                weeklyRate = 30;
+            } else {
+                interval = truck.fuelType === 'diesel' ? 8000 : 5000;
+                unit = 'mi';
+                weeklyRate = 400;
+            }
+
             const currentOdo = truck.currentOdo || 0;
             const lastServiceOdo = truck.lastServiceOdo || 0;
-            const milesSinceService = currentOdo - lastServiceOdo;
-            const milesRemaining = interval - milesSinceService;
-            const percentUsed = Math.min((milesSinceService / interval) * 100, 120);
+            const sinceService = currentOdo - lastServiceOdo;
+            const remaining = interval - sinceService;
+            const percentUsed = Math.min((sinceService / interval) * 100, 120);
 
             let status, color;
-            if (milesRemaining <= 0) {
+            if (remaining <= 0) {
                 status = 'overdue';
                 color = 'red';
-            } else if (milesRemaining <= interval * 0.25) {
+            } else if (remaining <= interval * 0.25) {
                 status = 'due-soon';
                 color = 'yellow';
             } else {
@@ -2197,12 +2214,11 @@
                 color = 'green';
             }
 
-            // Estimate next due date based on ~400 miles/week
-            const weeksUntilDue = Math.max(0, milesRemaining / 400);
+            const weeksUntilDue = Math.max(0, remaining / weeklyRate);
             const nextDueDate = new Date();
             nextDueDate.setDate(nextDueDate.getDate() + (weeksUntilDue * 7));
 
-            return { interval, milesSinceService, milesRemaining, percentUsed: Math.min(percentUsed, 100), status, color, nextDueDate };
+            return { interval, unit, sinceService, milesRemaining: remaining, percentUsed: Math.min(percentUsed, 100), status, color, nextDueDate };
         }
 
         // ============================================
@@ -2212,12 +2228,12 @@
             const body = document.getElementById('fleetBody');
 
             if (!fleetTrucks || fleetTrucks.length === 0) {
-                body.innerHTML = '<tr><td colspan="9" class="fleet-loading">No trucks found. Run setupMaintenanceSheet() in Apps Script to initialize.</td></tr>';
+                body.innerHTML = '<tr><td colspan="9" class="fleet-loading">No assets found. Run setupMaintenanceSheet() in Apps Script to initialize.</td></tr>';
                 return;
             }
 
             const trucksWithStatus = fleetTrucks.map(t => ({ ...t, calc: calculateMaintenanceStatus(t) }));
-            // Sort: overdue first, then due soon, then by miles remaining ascending
+            // Sort: overdue first, then due soon, then by remaining ascending
             trucksWithStatus.sort((a, b) => a.calc.milesRemaining - b.calc.milesRemaining);
 
             let overdue = 0, dueSoon = 0, good = 0;
@@ -2233,7 +2249,7 @@
             body.innerHTML = trucksWithStatus.map((t, idx) => {
                 const fuelClass = t.fuelType === 'diesel' ? 'diesel' : 'gas';
                 const statusLabel = t.calc.status === 'overdue' ? 'OVERDUE' : t.calc.status === 'due-soon' ? 'DUE SOON' : 'GOOD';
-                const milesText = t.calc.milesRemaining <= 0
+                const remainingText = t.calc.milesRemaining <= 0
                     ? '-' + Math.abs(t.calc.milesRemaining).toLocaleString()
                     : t.calc.milesRemaining.toLocaleString();
                 const nextDueText = t.calc.status === 'overdue' ? 'NOW' : formatFleetDate(t.calc.nextDueDate);
@@ -2246,7 +2262,7 @@
                         <div style="font-size: 0.8em; color: var(--text-muted);">${escapeHtml(t.group)}</div>
                     </td>
                     <td><span class="fuel-badge ${fuelClass}">${escapeHtml(t.fuelType.toUpperCase())}</span></td>
-                    <td>${t.calc.interval.toLocaleString()} mi</td>
+                    <td>${t.calc.interval.toLocaleString()} ${t.calc.unit}</td>
                     <td>
                         <div class="odo-cell-content" id="odo-cell-${safeId}">
                             <span class="odo-display">${t.currentOdo ? t.currentOdo.toLocaleString() : 'N/A'}</span>
@@ -2260,10 +2276,10 @@
                     </td>
                     <td>
                         ${t.lastServiceDate ? formatFleetDateStr(t.lastServiceDate) : 'N/A'}<br>
-                        <span style="color: var(--text-muted); font-size: 0.8em;">@ ${t.lastServiceOdo ? t.lastServiceOdo.toLocaleString() + ' mi' : 'N/A'}</span>
+                        <span style="color: var(--text-muted); font-size: 0.8em;">@ ${t.lastServiceOdo ? t.lastServiceOdo.toLocaleString() + ' ' + t.calc.unit : 'N/A'}</span>
                     </td>
                     <td>
-                        <span class="progress-miles ${t.calc.color}">${milesText} mi</span>
+                        <span class="progress-miles ${t.calc.color}">${remainingText} ${t.calc.unit}</span>
                         <div class="mini-bar"><div class="mini-fill progress-fill ${t.calc.color}" style="width: ${t.calc.percentUsed}%"></div></div>
                     </td>
                     <td><span class="fleet-status-badge ${t.calc.status}">${statusLabel}</span></td>
@@ -2297,7 +2313,7 @@
             const truck = fleetTrucks.find(t => t.assetId === assetId);
 
             if (!truck) {
-                showToast('Error: truck not found for ' + assetId, 'error');
+                showToast('Error: asset not found for ' + assetId, 'error');
                 return;
             }
 
@@ -2307,7 +2323,7 @@
             }
 
             if (truck.currentOdo && newOdo < truck.currentOdo) {
-                if (!confirm('New odometer (' + newOdo.toLocaleString() + ') is less than current (' + truck.currentOdo.toLocaleString() + '). Continue anyway?')) {
+                if (!confirm('New reading (' + newOdo.toLocaleString() + ') is less than current (' + truck.currentOdo.toLocaleString() + '). Continue anyway?')) {
                     return;
                 }
             }
@@ -2331,7 +2347,7 @@
                     throw new Error(result.response.error || 'Save failed');
                 }
 
-                showToast('Odometer saved for ' + assetId, 'success');
+                showToast('Reading saved for ' + assetId, 'success');
 
                 // Reload fleet data from backend to verify it persisted
                 await loadFleetMaintenance();
