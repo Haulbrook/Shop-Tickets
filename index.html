@@ -1329,15 +1329,6 @@
             </div>
         </div>
 
-        <!-- Settings -->
-        <details class="settings">
-            <summary>Settings</summary>
-            <div class="settings-content">
-                <label for="apiUrl">API URL (Branches V1 Apps Script)</label>
-                <input type="text" id="apiUrl" placeholder="https://script.google.com/macros/s/...">
-                <button class="btn btn-primary" style="margin-top: 12px;" onclick="saveSettings()">Save</button>
-            </div>
-        </details>
     </div>
 
     <!-- Completion Modal -->
@@ -1419,15 +1410,13 @@
         // ============================================
         // Default to Branches V1 API URL
         const DEFAULT_API = '/api';
-        let API_URL = localStorage.getItem('shopTicketsApiUrl') || DEFAULT_API;
+        const API_URL = DEFAULT_API;
         let fleetItems = [];
 
         // ============================================
         // INITIALIZATION
         // ============================================
         document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('apiUrl').value = API_URL;
-
             if (API_URL) {
                 loadFleetItems();
                 loadTickets();
@@ -1860,18 +1849,6 @@
             }
         }
 
-        // ============================================
-        // SETTINGS
-        // ============================================
-        function saveSettings() {
-            API_URL = document.getElementById('apiUrl').value.trim();
-            localStorage.setItem('shopTicketsApiUrl', API_URL);
-            showToast('Settings saved!', 'success');
-            if (API_URL) {
-                loadFleetItems();
-                loadTickets();
-            }
-        }
 
         // ============================================
         // UTILITIES
