@@ -269,6 +269,7 @@
           assetNumber: assetNumber,
           rfid: rfid,
           type: category || 'Uncategorized',       // Department for grouping
+          group: invisitagGroup,                   // Invisitag group (used for maintenance tracking)
           status: status                           // Repair status from sheet
         });
       }
