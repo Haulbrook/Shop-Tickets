@@ -1347,10 +1347,16 @@
             <p class="modal-subtitle">Fill in the repair details to mark this ticket complete</p>
 
             <input type="hidden" id="completionTicketId">
+            <input type="hidden" id="completionAssetId">
 
             <div class="form-group">
                 <label for="completionAssetName">Asset Name <span class="required">*</span></label>
                 <input type="text" id="completionAssetName" readonly>
+            </div>
+
+            <div class="form-group" id="odoReadingGroup" style="display:none">
+                <label for="completionOdoReading">Current Odometer / Hours <span class="required">*</span></label>
+                <input type="number" id="completionOdoReading" min="0" step="1" placeholder="e.g., 87450">
             </div>
 
             <div class="form-group">
@@ -1425,6 +1431,7 @@
             if (API_URL) {
                 loadFleetItems();
                 loadTickets();
+                loadFleetMaintenance();
             } else {
                 document.getElementById('openTickets').innerHTML = `
                     <div class="empty-state">
@@ -1599,7 +1606,7 @@
                     ${ticket.notes ? `<div class="ticket-notes">${escapeHtml(ticket.notes)}</div>` : ''}
                     ${!isCompleted ? `
                         <div class="ticket-actions">
-                            <button class="btn-complete" onclick="completeTicket('${escapeJsString(ticket.ticketId)}', '${escapeJsString(ticket.assetName || ticket.item || '')}')">
+                            <button class="btn-complete" onclick="completeTicket('${escapeJsString(ticket.ticketId)}', '${escapeJsString(ticket.assetName || ticket.item || '')}', '${escapeJsString(ticket.assetId || '')}')">
                                 Mark Complete
                             </button>
                             <button class="btn-delete" onclick="deleteTicket('${escapeJsString(ticket.ticketId)}')">
@@ -1662,18 +1669,25 @@
         // ============================================
         let currentTicketData = null;
 
-        function completeTicket(ticketId, assetName) {
+        function completeTicket(ticketId, assetName, assetId) {
             // Store ticket info and open modal
-            currentTicketData = { ticketId, assetName };
-            openCompletionModal(ticketId, assetName);
+            currentTicketData = { ticketId, assetName, assetId };
+            openCompletionModal(ticketId, assetName, assetId);
         }
 
-        function openCompletionModal(ticketId, assetName) {
-            // Set ticket ID
+        function openCompletionModal(ticketId, assetName, assetId) {
+            // Set ticket ID and asset ID
             document.getElementById('completionTicketId').value = ticketId;
+            document.getElementById('completionAssetId').value = assetId || '';
 
             // Set asset name (read-only)
             document.getElementById('completionAssetName').value = assetName || '';
+
+            // Show odometer field only for fleet assets
+            const isFleetAsset = fleetTrucks.some(t => t.assetId === assetId);
+            const odoGroup = document.getElementById('odoReadingGroup');
+            odoGroup.style.display = isFleetAsset ? '' : 'none';
+            document.getElementById('completionOdoReading').value = '';
 
             // Auto-populate repair date to today
             const today = new Date().toISOString().split('T')[0];
@@ -1738,7 +1752,9 @@
 
             // Gather form data
             const ticketId = document.getElementById('completionTicketId').value;
+            const assetId = document.getElementById('completionAssetId').value;
             const assetName = document.getElementById('completionAssetName').value;
+            const odoReading = document.getElementById('completionOdoReading').value;
             const repairDate = document.getElementById('completionRepairDate').value;
             const partUsed = document.getElementById('completionPartUsed').checked;
             const partDetails = document.getElementById('completionPartDetails').value.trim();
@@ -1747,6 +1763,8 @@
             const laborRateType = document.getElementById('rateStandard').checked ? 'standard' : 'emergency';
             const laborRate = laborRateType === 'standard' ? 80 : 150;
             const additionalNotes = document.getElementById('completionAdditionalNotes').value.trim();
+
+            const isFleetAsset = fleetTrucks.some(t => t.assetId === assetId);
 
             // Validation
             let hasErrors = false;
@@ -1763,6 +1781,10 @@
 
             if (!assetName) {
                 showError('completionAssetName', 'Asset name is required');
+            }
+
+            if (isFleetAsset && (odoReading === '' || parseFloat(odoReading) < 0)) {
+                showError('completionOdoReading', 'Odometer / hours reading is required');
             }
 
             if (!repairDate) {
@@ -1801,7 +1823,8 @@
                 laborRateType,
                 laborRate,
                 totalLaborCost,
-                additionalNotes
+                additionalNotes,
+                odoReading: isFleetAsset && odoReading !== '' ? parseFloat(odoReading) : null
             };
 
             // Disable button and show loading
@@ -1811,7 +1834,7 @@
 
             try {
                 await callAPI('completeRepairTicket', [completionData]);
-                await Promise.all([loadTickets(), loadFleetItems()]);
+                await Promise.all([loadTickets(), loadFleetItems(), loadFleetMaintenance()]);
                 closeCompletionModal();
                 showToast('Ticket completed successfully!', 'success');
             } catch (error) {

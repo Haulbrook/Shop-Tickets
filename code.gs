@@ -415,7 +415,8 @@
           assignedTo: String(row[COLS.ASSIGNED_TO] || ''),
           notes: String(row[COLS.NOTES] || ''),
           status: String(row[COLS.STATUS] || 'OPEN'),
-          completed: formatDateTime(row[COLS.COMPLETED])
+          completed: formatDateTime(row[COLS.COMPLETED]),
+          assetId: String(row[COLS.ASSET_ID] || '')
         };
 
         if (ticket.status === 'COMPLETED') {
@@ -544,6 +545,14 @@
             // Push to external sheet if configured
             if (EXTERNAL_SHEET_ID) {
               pushToExternalSheet(data[i], repairDetails, repairDate, completedTime);
+            }
+
+            // Update fleet maintenance schedule if odometer reading was provided
+            if (repairDetails.odoReading !== null && repairDetails.odoReading !== undefined) {
+              const ticketAssetId = String(data[i][COLS.ASSET_ID] || '').trim();
+              if (ticketAssetId) {
+                recordServiceOdometer(ticketAssetId, parseFloat(repairDetails.odoReading), repairDate);
+              }
             }
           }
 
@@ -841,6 +850,62 @@
       return { success: true, message: 'Odometer updated to ' + newOdo };
     } catch (error) {
       return { success: false, error: error.toString() };
+    }
+  }
+
+  // ============================================
+  // RECORD SERVICE ODOMETER (called on ticket completion)
+  // Resets maintenance schedule: sets both currentOdo AND lastServiceOdo
+  // so the maintenance countdown starts fresh from zero.
+  // ============================================
+  function recordServiceOdometer(assetId, newOdo, serviceDate) {
+    try {
+      if (!assetId || isNaN(newOdo) || newOdo < 0) return;
+
+      const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+      let sheet = ss.getSheetByName(MAINTENANCE_SHEET_NAME);
+
+      // Auto-create sheet if it doesn't exist
+      if (!sheet) {
+        sheet = ss.insertSheet(MAINTENANCE_SHEET_NAME);
+        sheet.getRange(1, 1, 1, 5).setValues([[
+          'Asset ID', 'Current Odometer', 'Last Service Odometer', 'Last Service Date', 'Last Updated'
+        ]]);
+        sheet.getRange(1, 1, 1, 5)
+          .setFontWeight('bold')
+          .setBackground('#4a4a4a')
+          .setFontColor('#ffffff');
+        sheet.setFrozenRows(1);
+      }
+
+      const data = sheet.getDataRange().getValues();
+      const now = new Date();
+      const svcDate = serviceDate instanceof Date ? serviceDate : new Date(serviceDate);
+
+      let rowIndex = -1;
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][0] || '').trim() === String(assetId).trim()) {
+          rowIndex = i + 1; // 1-indexed for Sheets
+          break;
+        }
+      }
+
+      if (rowIndex > 0) {
+        sheet.getRange(rowIndex, 2).setValue(newOdo);   // Current Odometer/Hours
+        sheet.getRange(rowIndex, 3).setValue(newOdo);   // Last Service Odometer/Hours (reset)
+        sheet.getRange(rowIndex, 4).setValue(svcDate);  // Last Service Date
+        sheet.getRange(rowIndex, 5).setValue(now);       // Last Updated
+      } else {
+        sheet.appendRow([
+          String(assetId).trim(),
+          newOdo,   // Current Odometer/Hours
+          newOdo,   // Last Service Odometer/Hours (reset)
+          svcDate,  // Last Service Date
+          now       // Last Updated
+        ]);
+      }
+    } catch (error) {
+      console.error('recordServiceOdometer error:', error.toString());
     }
   }
 
