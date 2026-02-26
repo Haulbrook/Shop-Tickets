@@ -1345,7 +1345,7 @@
                 <input type="text" id="completionAssetName" readonly>
             </div>
 
-            <div class="form-group" id="odoReadingGroup" style="display:none">
+            <div class="form-group" id="odoReadingGroup">
                 <label for="completionOdoReading">Current Odometer / Hours <span class="required">*</span></label>
                 <input type="number" id="completionOdoReading" min="0" step="1" placeholder="e.g., 87450">
             </div>
@@ -1672,17 +1672,7 @@
             // Set asset name (read-only)
             document.getElementById('completionAssetName').value = assetName || '';
 
-            // Show odometer field for maintenance-tracked assets
-            // Primary: check fleetItems group (always loaded with dropdown)
-            // Fallback: check fleetTrucks (loaded with Fleet Overview)
-            const maintenanceGroups = ['install truck', 'maintenance truck', 'office truck', 'heavy machine', 'mower', 'spray machine'];
-            const fleetItem = fleetItems.find(item => item.id === assetId);
-            console.log('DEBUG modal open:', { assetId, fleetItemsCount: fleetItems.length, fleetTrucksCount: fleetTrucks.length, fleetItem, fleetItemGroup: fleetItem?.group });
-            const isFleetAsset = (fleetItem && maintenanceGroups.includes(fleetItem.group))
-                               || fleetTrucks.some(t => t.assetId === assetId);
-            console.log('DEBUG isFleetAsset:', isFleetAsset);
-            const odoGroup = document.getElementById('odoReadingGroup');
-            odoGroup.style.display = isFleetAsset ? '' : 'none';
+            // Always show and require odometer/hours field
             document.getElementById('completionOdoReading').value = '';
 
             // Auto-populate repair date to today
@@ -1760,11 +1750,6 @@
             const laborRate = laborRateType === 'standard' ? 80 : 150;
             const additionalNotes = document.getElementById('completionAdditionalNotes').value.trim();
 
-            const maintenanceGroups = ['install truck', 'maintenance truck', 'office truck', 'heavy machine', 'mower', 'spray machine'];
-            const fleetItem = fleetItems.find(item => item.id === assetId);
-            const isFleetAsset = (fleetItem && maintenanceGroups.includes(fleetItem.group))
-                               || fleetTrucks.some(t => t.assetId === assetId);
-
             // Validation
             let hasErrors = false;
 
@@ -1782,7 +1767,7 @@
                 showError('completionAssetName', 'Asset name is required');
             }
 
-            if (isFleetAsset && (odoReading === '' || parseFloat(odoReading) < 0)) {
+            if (odoReading === '' || parseFloat(odoReading) < 0) {
                 showError('completionOdoReading', 'Odometer / hours reading is required');
             }
 
@@ -1823,7 +1808,7 @@
                 laborRate,
                 totalLaborCost,
                 additionalNotes,
-                odoReading: isFleetAsset && odoReading !== '' ? parseFloat(odoReading) : null
+                odoReading: odoReading !== '' ? parseFloat(odoReading) : null
             };
 
             // Disable button and show loading
