@@ -1,0 +1,6 @@
+netlify/**
+netlify.toml
+node_modules/**
+.git/**
+.claude/**
+*.md
