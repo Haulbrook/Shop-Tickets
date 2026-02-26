@@ -1677,8 +1677,10 @@
             // Fallback: check fleetTrucks (loaded with Fleet Overview)
             const maintenanceGroups = ['install truck', 'maintenance truck', 'office truck', 'heavy machine', 'mower', 'spray machine'];
             const fleetItem = fleetItems.find(item => item.id === assetId);
+            console.log('DEBUG modal open:', { assetId, fleetItemsCount: fleetItems.length, fleetTrucksCount: fleetTrucks.length, fleetItem, fleetItemGroup: fleetItem?.group });
             const isFleetAsset = (fleetItem && maintenanceGroups.includes(fleetItem.group))
                                || fleetTrucks.some(t => t.assetId === assetId);
+            console.log('DEBUG isFleetAsset:', isFleetAsset);
             const odoGroup = document.getElementById('odoReadingGroup');
             odoGroup.style.display = isFleetAsset ? '' : 'none';
             document.getElementById('completionOdoReading').value = '';
