@@ -7,15 +7,15 @@
   // ============================================
   // CONFIGURATION - UPDATE THIS!
   // ============================================
-  const SPREADSHEET_ID = '1xyGOcCV5N7jtgJVml6l7OpNdSgMYs1pQ-EjMSgbnWrU'; // Replace with your TICKETS Google Sheet ID
+  const SPREADSHEET_ID = '1KElgb4RAYO_KHMdEJD3zuwxrq1JEkPWPq0RInLmWEFI'; // Landscapebrain demo Tickets sheet
   const SHEET_NAME = 'Tickets';
 
   // External sheet for repair log (replace with your decision-maker sheet ID)
-  const EXTERNAL_SHEET_ID = '1aF_6nHHp8NA-eETkwZMUuTlPRPOiiKEvou-F9QuVTD8'; // Your decision-maker sheet
+  const EXTERNAL_SHEET_ID = '1Udmg4V5xACw700BDoCt64StYQi7pnN5BEleOD8kTQoI'; // Landscapebrain demo Repairs sheet
   const EXTERNAL_SHEET_NAME = 'Repairs'; // Sheet name for completed repairs log
 
   // Assets sheet configuration
-  const ASSETS_SHEET_ID = '1AmyIFL74or_Nh0QLMu_n18YosrSP9E4EA6k5MTzlq1Y'; // Asset In/Out list spreadsheet
+  const ASSETS_SHEET_ID = '1xI6gCkkOa0KeGhFGIGN0mP3Ey20BTd9wTLLZsR_eC0Y'; // Landscapebrain demo Fleet Assets sheet
   const ASSETS_SHEET_NAME = 'Master'; // Sheet name containing equipment list
 
   // Maintenance tracking sheet (lives in the same Tickets spreadsheet)
